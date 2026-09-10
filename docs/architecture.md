@@ -1,6 +1,6 @@
 # SpecShip Architecture
 
-SpecShip is built with React, TypeScript, Node APIs, database-backed design, containers, and production-style delivery habits.
+SpecShip is a small full-stack TypeScript product-spec tracker. The app keeps product requirements, owners, acceptance criteria, and delivery status in one place while keeping the frontend and API contracts aligned.
 
 ## Shape
 
@@ -22,7 +22,6 @@ SpecShip is built with React, TypeScript, Node APIs, database-backed design, con
 - Keep request and response contracts typed.
 - Validate incoming writes before they hit storage.
 - Keep persistence behind a small interface so tests can use memory storage.
-- Prefer small commits that each leave the app buildable.
 - Run tests, lint, and build before pushing.
 
 ## Production Direction

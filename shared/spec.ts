@@ -30,16 +30,16 @@ export const statusOrder: SpecStatus[] = [
 
 export const seedSpecs: ProductSpec[] = [
   {
-    id: 'spec-job-fit-dashboard',
-    title: 'Job-fit dashboard',
+    id: 'spec-intake-dashboard',
+    title: 'Spec intake dashboard',
     owner: 'Frontend',
     status: 'In progress',
     priority: 'High',
     requirement:
-      'Teams need to see how planned work maps to real product requirements.',
+      'Product teams need a clear view of new feature requests before planning delivery work.',
     acceptanceCriteria: [
-      'Show target job requirements in a scannable layout.',
-      'Track which requirements are covered by planned work.',
+      'Show incoming feature requests in a scannable layout.',
+      'Track owner, priority, and delivery status for each spec.',
       'Keep the interface responsive on mobile and desktop.',
     ],
     updatedAt: '2026-09-10T00:00:00.000Z',

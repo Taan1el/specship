@@ -1,18 +1,17 @@
 # SpecShip
 
-SpecShip is a full-stack TypeScript app for tracking a feature from specification to production-style delivery. It uses React, TypeScript, Node APIs, a PostgreSQL database and containers.
+SpecShip is a full-stack TypeScript app for tracking product specs from intake to release. It gives small teams a shared place to define requirements, assign ownership, move work through review, and keep delivery notes visible.
 
-## Job Requirements Covered
+## Features
 
-- React application development with typed state and forms.
-- Node.js API development with Express.
-- Shared TypeScript contracts between frontend and backend.
-- Validated API writes with Zod.
+- Product spec board with status filters.
+- Typed create flow for new specs.
+- Express API with validated reads and writes.
+- Shared TypeScript contracts between the frontend and API.
 - PostgreSQL-ready persistence behind a store interface.
+- In-memory fallback for local demos when the API or database is unavailable.
 - Docker and Docker Compose configuration.
-- Tests for API behavior.
-- Build, lint, and test scripts for maintainable delivery.
-- Architecture notes for technical discussion.
+- Tests, linting, and production build scripts.
 
 ## Run Locally
 
@@ -64,7 +63,6 @@ See [docs/architecture.md](docs/architecture.md).
 ## Next Improvements
 
 - Add frontend tests around filtering and status movement.
-- Add GitHub Actions CI.
 - Add screenshots and demo notes.
 - Add proper SQL migrations.
 - Add structured API errors and request logging.

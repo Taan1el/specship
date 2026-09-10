@@ -183,11 +183,11 @@ function App() {
           </p>
         </div>
         <div>
-          <p className="label">Job requirements covered</p>
+          <p className="label">System shape</p>
           <h2>React, TypeScript, Node, APIs, database-ready design</h2>
           <p>
-            Built for teams that move features from
-            specification to production.
+            Keeps product specs moving from intake through review with typed
+            frontend and API contracts.
           </p>
         </div>
       </section>
@@ -241,7 +241,7 @@ function App() {
                   ))}
                 </ul>
                 <p className="timestamp">
-                  Owner: {spec.owner} · Updated{' '}
+                  Owner: {spec.owner} - Updated{' '}
                   {new Date(spec.updatedAt).toLocaleDateString()}
                 </p>
               </article>

@@ -21,7 +21,7 @@ describe('SpecShip API', () => {
 
     expect(response.status).toBe(200)
     expect(response.body).toHaveLength(seedSpecs.length)
-    expect(response.body[0].title).toBe('Job-fit dashboard')
+    expect(response.body[0].title).toBe('Spec intake dashboard')
   })
 
   it('creates a validated spec', async () => {
