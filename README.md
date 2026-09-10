@@ -1,32 +1,70 @@
-# React + TypeScript + Vite
+# SpecShip
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+SpecShip is a full-stack TypeScript app for tracking a feature from specification to production-style delivery. It uses React, TypeScript, Node APIs, a PostgreSQL database and containers.
 
-Currently, two official plugins are available:
+## Job Requirements Covered
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- React application development with typed state and forms.
+- Node.js API development with Express.
+- Shared TypeScript contracts between frontend and backend.
+- Validated API writes with Zod.
+- PostgreSQL-ready persistence behind a store interface.
+- Docker and Docker Compose configuration.
+- Tests for API behavior.
+- Build, lint, and test scripts for maintainable delivery.
+- Architecture notes for technical discussion.
 
-## React Compiler
+## Run Locally
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Install dependencies:
 
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Start the API:
+
+```bash
+npm run dev:api
+```
+
+Start the frontend in another terminal:
+
+```bash
+npm run dev
+```
+
+## API
+
+- `GET /api/health`
+- `GET /api/specs`
+- `POST /api/specs`
+- `PATCH /api/specs/:id/status`
+
+## Docker
+
+Docker is not required for local development, but the project includes a container setup for PostgreSQL-backed runs:
+
+```bash
+docker compose up --build
+```
+
+## Quality Checks
+
+```bash
+npm test
+npm run lint
+npm run build
+```
+
+## Architecture
+
+See [docs/architecture.md](docs/architecture.md).
+
+## Next Improvements
+
+- Add frontend tests around filtering and status movement.
+- Add GitHub Actions CI.
+- Add screenshots and demo notes.
+- Add proper SQL migrations.
+- Add structured API errors and request logging.

@@ -1,0 +1,24 @@
+services:
+  api:
+    build: .
+    environment:
+      DATABASE_URL: postgres://specship:specship@postgres:5432/specship
+      PORT: 4175
+    ports:
+      - "4175:4175"
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: specship
+      POSTGRES_PASSWORD: specship
+      POSTGRES_USER: specship
+    ports:
+      - "5432:5432"
+    volumes:
+      - specship-postgres:/var/lib/postgresql/data
+
+volumes:
+  specship-postgres:

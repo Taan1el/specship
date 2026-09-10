@@ -1,121 +1,324 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
+import { useEffect, useMemo, useState } from 'react'
+import type { FormEvent } from 'react'
+import {
+  seedSpecs,
+  statusOrder,
+  type CreateSpecInput,
+  type ProductSpec,
+  type SpecPriority,
+  type SpecStatus,
+} from '../shared/spec'
 import './App.css'
 
+const priorities: SpecPriority[] = ['High', 'Medium', 'Low']
+
+const emptyForm: CreateSpecInput = {
+  acceptanceCriteria: [''],
+  owner: '',
+  priority: 'Medium',
+  requirement: '',
+  title: '',
+}
+
 function App() {
-  const [count, setCount] = useState(0)
+  const [specs, setSpecs] = useState<ProductSpec[]>(seedSpecs)
+  const [selectedStatus, setSelectedStatus] = useState<'All' | SpecStatus>('All')
+  const [form, setForm] = useState<CreateSpecInput>(emptyForm)
+  const [apiState, setApiState] = useState<'Loading' | 'Ready' | 'Offline'>(
+    'Loading',
+  )
+
+  useEffect(() => {
+    async function loadSpecs() {
+      try {
+        const response = await fetch('/api/specs')
+
+        if (!response.ok) {
+          throw new Error('Spec API unavailable')
+        }
+
+        setSpecs((await response.json()) as ProductSpec[])
+        setApiState('Ready')
+      } catch {
+        setApiState('Offline')
+      }
+    }
+
+    loadSpecs()
+  }, [])
+
+  const filteredSpecs = useMemo(() => {
+    if (selectedStatus === 'All') {
+      return specs
+    }
+
+    return specs.filter((spec) => spec.status === selectedStatus)
+  }, [selectedStatus, specs])
+
+  const shippedCount = specs.filter((spec) => spec.status === 'Shipped').length
+  const highPriorityCount = specs.filter((spec) => spec.priority === 'High').length
+
+  async function createSpec(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+
+    const input = {
+      ...form,
+      acceptanceCriteria: form.acceptanceCriteria.filter(Boolean),
+    }
+
+    if (!input.title || !input.owner || !input.requirement || input.acceptanceCriteria.length === 0) {
+      return
+    }
+
+    try {
+      const response = await fetch('/api/specs', {
+        body: JSON.stringify(input),
+        headers: { 'Content-Type': 'application/json' },
+        method: 'POST',
+      })
+
+      if (!response.ok) {
+        throw new Error('Spec create failed')
+      }
+
+      setSpecs([(await response.json()) as ProductSpec, ...specs])
+      setApiState('Ready')
+      setForm(emptyForm)
+    } catch {
+      const spec: ProductSpec = {
+        ...input,
+        id: `local-${Date.now()}`,
+        status: 'Backlog',
+        updatedAt: new Date().toISOString(),
+      }
+
+      setSpecs([spec, ...specs])
+      setApiState('Offline')
+      setForm(emptyForm)
+    }
+  }
+
+  async function moveSpec(spec: ProductSpec) {
+    const nextStatus =
+      statusOrder[(statusOrder.indexOf(spec.status) + 1) % statusOrder.length]
+
+    try {
+      const response = await fetch(`/api/specs/${spec.id}/status`, {
+        body: JSON.stringify({ status: nextStatus }),
+        headers: { 'Content-Type': 'application/json' },
+        method: 'PATCH',
+      })
+
+      if (!response.ok) {
+        throw new Error('Spec status update failed')
+      }
+
+      const updatedSpec = (await response.json()) as ProductSpec
+
+      setSpecs(
+        specs.map((currentSpec) =>
+          currentSpec.id === spec.id ? updatedSpec : currentSpec,
+        ),
+      )
+      setApiState('Ready')
+    } catch {
+      setSpecs(
+        specs.map((currentSpec) =>
+          currentSpec.id === spec.id
+            ? {
+                ...currentSpec,
+                status: nextStatus,
+                updatedAt: new Date().toISOString(),
+              }
+            : currentSpec,
+        ),
+      )
+      setApiState('Offline')
+    }
+  }
+
+  function updateCriterion(index: number, value: string) {
+    setForm({
+      ...form,
+      acceptanceCriteria: form.acceptanceCriteria.map((criterion, currentIndex) =>
+        currentIndex === index ? value : criterion,
+      ),
+    })
+  }
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
+    <main className="app-shell">
+      <section className="hero-section">
         <div>
-          <h1>Get started</h1>
+          <p className="eyebrow">React + TypeScript + Node delivery tracker</p>
+          <h1>SpecShip</h1>
           <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
+            A small product-spec dashboard that follows a feature from requirement
+            to production-style review.
           </p>
         </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
+        <div className="stats-grid">
+          <article>
+            <span>{specs.length}</span>
+            <p>active specs</p>
+          </article>
+          <article>
+            <span>{highPriorityCount}</span>
+            <p>high priority</p>
+          </article>
+          <article>
+            <span>{shippedCount}</span>
+            <p>shipped</p>
+          </article>
         </div>
       </section>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+      <section className="delivery-strip">
+        <div>
+          <p className="label">API state</p>
+          <h2>{apiState}</h2>
+          <p>
+            Uses the Node API when available, with a local fallback for demo
+            continuity.
+          </p>
+        </div>
+        <div>
+          <p className="label">Job requirements covered</p>
+          <h2>React, TypeScript, Node, APIs, database-ready design</h2>
+          <p>
+            Built for teams that move features from
+            specification to production.
+          </p>
+        </div>
+      </section>
+
+      <section className="workspace-grid">
+        <div>
+          <div className="section-heading">
+            <div>
+              <p className="label">Feature board</p>
+              <h2>Specs by delivery status</h2>
+            </div>
+            <div className="tabs" aria-label="Filter specs by status">
+              {(['All', ...statusOrder] as Array<'All' | SpecStatus>).map(
+                (status) => (
+                  <button
+                    aria-pressed={status === selectedStatus}
+                    className={status === selectedStatus ? 'active' : ''}
+                    key={status}
+                    onClick={() => setSelectedStatus(status)}
+                    type="button"
+                  >
+                    {status}
+                  </button>
+                ),
+              )}
+            </div>
+          </div>
+
+          <div className="spec-list" aria-label="Filtered product specs">
+            {filteredSpecs.map((spec) => (
+              <article className="spec-card" key={spec.id}>
+                <div className="spec-card-header">
+                  <div>
+                    <span className={`priority ${spec.priority.toLowerCase()}`}>
+                      {spec.priority}
+                    </span>
+                    <h3>{spec.title}</h3>
+                    <p>{spec.requirement}</p>
+                  </div>
+                  <button
+                    aria-label={`Move ${spec.title} from ${spec.status}`}
+                    onClick={() => moveSpec(spec)}
+                    type="button"
+                  >
+                    {spec.status}
+                  </button>
+                </div>
+                <ul>
+                  {spec.acceptanceCriteria.map((criterion) => (
+                    <li key={criterion}>{criterion}</li>
+                  ))}
+                </ul>
+                <p className="timestamp">
+                  Owner: {spec.owner} · Updated{' '}
+                  {new Date(spec.updatedAt).toLocaleDateString()}
+                </p>
+              </article>
+            ))}
+          </div>
+        </div>
+
+        <aside className="side-panel">
+          <section className="standards-panel">
+            <p className="label">Architecture notes</p>
+            <h2>Technical standards</h2>
+            <ul>
+              <li>Shared TypeScript contracts between frontend and API.</li>
+              <li>Validated API inputs with explicit error responses.</li>
+              <li>PostgreSQL-ready store with in-memory local fallback.</li>
+              <li>Small, testable delivery workflow from spec to shipped.</li>
+            </ul>
+          </section>
+
+          <form className="spec-form" onSubmit={createSpec}>
+            <p className="label">New feature</p>
+            <h2>Create spec</h2>
+            <label>
+              Title
+              <input
+                onChange={(event) => setForm({ ...form, title: event.target.value })}
+                placeholder="Feature name"
+                value={form.title}
+              />
+            </label>
+            <label>
+              Owner
+              <input
+                onChange={(event) => setForm({ ...form, owner: event.target.value })}
+                placeholder="Frontend, Backend, Platform"
+                value={form.owner}
+              />
+            </label>
+            <label>
+              Priority
+              <select
+                onChange={(event) =>
+                  setForm({
+                    ...form,
+                    priority: event.target.value as SpecPriority,
+                  })
+                }
+                value={form.priority}
+              >
+                {priorities.map((priority) => (
+                  <option key={priority}>{priority}</option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Requirement
+              <textarea
+                onChange={(event) =>
+                  setForm({ ...form, requirement: event.target.value })
+                }
+                placeholder="What user or business need does this solve?"
+                value={form.requirement}
+              />
+            </label>
+            <label>
+              Acceptance criterion
+              <textarea
+                onChange={(event) => updateCriterion(0, event.target.value)}
+                placeholder="What must be true before this ships?"
+                value={form.acceptanceCriteria[0]}
+              />
+            </label>
+            <button type="submit">Create spec</button>
+          </form>
+        </aside>
+      </section>
+    </main>
   )
 }
 
