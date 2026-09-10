@@ -59,10 +59,10 @@ npm run build
 ## Architecture
 
 See [docs/architecture.md](docs/architecture.md).
+See [docs/demo.md](docs/demo.md) for a quick product walkthrough.
 
 ## Next Improvements
 
-- Add frontend tests around filtering and status movement.
-- Add screenshots and demo notes.
+- Add product screenshots.
 - Add proper SQL migrations.
 - Add structured API errors and request logging.
