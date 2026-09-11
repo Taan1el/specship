@@ -1,4 +1,5 @@
 import express from 'express'
+import { ZodError } from 'zod'
 import type { SpecStore } from './specStore.js'
 import { createSpecSchema, statusSchema } from './validation.js'
 
@@ -36,7 +37,7 @@ export function createApp(store: SpecStore) {
       const spec = await store.updateStatus(request.params.id, status)
 
       if (!spec) {
-        response.status(404).json({ error: 'Spec not found' })
+        response.status(404).json({ code: 'SPEC_NOT_FOUND', error: 'Spec not found' })
         return
       }
 
@@ -46,15 +47,56 @@ export function createApp(store: SpecStore) {
     }
   })
 
+  app.use((_request, response) => {
+    response.status(404).json({ code: 'NOT_FOUND', error: 'Route not found' })
+  })
+
   app.use(
     (
       error: unknown,
       _request: express.Request,
       response: express.Response,
-      _next: express.NextFunction,
+      next: express.NextFunction,
     ) => {
-      response.status(400).json({
-        error: error instanceof Error ? error.message : 'Invalid request',
+      if (response.headersSent) {
+        next(error)
+        return
+      }
+
+      if (error instanceof ZodError) {
+        response.status(400).json({
+          code: 'VALIDATION_ERROR',
+          error: 'Invalid request',
+          issues: error.issues.map((issue) => ({
+            path: issue.path,
+            message: issue.message,
+          })),
+        })
+        return
+      }
+
+      const type = error && typeof error === 'object' && 'type' in error
+        ? error.type
+        : undefined
+
+      if (type === 'entity.parse.failed') {
+        response.status(400).json({ code: 'INVALID_JSON', error: 'Malformed JSON body' })
+        return
+      }
+
+      if (type === 'entity.too.large') {
+        response.status(413).json({ code: 'PAYLOAD_TOO_LARGE', error: 'Request body is too large' })
+        return
+      }
+
+      if (type === 'charset.unsupported' || type === 'encoding.unsupported') {
+        response.status(415).json({ code: 'UNSUPPORTED_ENCODING', error: 'Unsupported request encoding' })
+        return
+      }
+
+      response.status(500).json({
+        code: 'INTERNAL_ERROR',
+        error: 'Unable to complete request',
       })
     },
   )
