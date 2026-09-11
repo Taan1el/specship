@@ -40,6 +40,10 @@ npm run dev
 - `POST /api/specs`
 - `PATCH /api/specs/:id/status`
 
+Failed requests return JSON with a stable `code` and a readable `error` message.
+Validation errors also include field-level `issues`. See the
+[error response contract](docs/architecture.md#error-responses) for status codes.
+
 ## Docker
 
 Docker is not required for local development, but the project includes a container setup for PostgreSQL-backed runs:
@@ -65,4 +69,4 @@ See [docs/demo.md](docs/demo.md) for a quick product walkthrough.
 
 - Add product screenshots.
 - Add proper SQL migrations.
-- Add structured API errors and request logging.
+- Add structured request logging.
