@@ -63,7 +63,7 @@ h1 {
   color: #101820;
   font-size: clamp(3rem, 9vw, 6.75rem);
   letter-spacing: 0;
-  line-height: 0.9;
+  line-height: 1.05;
   margin-bottom: 12px;
 }
 
