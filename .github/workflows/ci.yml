@@ -12,10 +12,10 @@ jobs:
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
@@ -31,3 +31,6 @@ jobs:
 
       - name: Build frontend and API
         run: npm run build
+
+      - name: Build Docker image
+        run: docker build -t specship:ci .
