@@ -5,9 +5,9 @@ SpecShip is a small full-stack TypeScript product-spec tracker. The app keeps pr
 ## Shape
 
 - React and TypeScript frontend in `src`.
-- Shared feature contracts in `shared`.
-- Express API in `server`.
-- Store abstraction with an in-memory implementation for local demos and a PostgreSQL implementation for container/database runs.
+- Shared feature contracts, the in-memory store, and validation schemas in `shared`. Nothing in `shared` uses a Node-only API, so the same code runs in the Express server and in the browser.
+- Express API in `server`. It re-exports the shared store and validation and adds the PostgreSQL-backed store, which does depend on Node (`pg`).
+- A small API client in `src/services`: `api.ts` talks to the real Express API, `demoApi.ts` answers the same functions from the shared in-memory store, and `index.ts` picks one with `import.meta.env.VITE_DEMO_MODE`.
 - Docker Compose file for running the API with Postgres.
 
 ## API
@@ -38,13 +38,35 @@ Invalid writes are rejected before storage is called. Unexpected failures return
 a generic message; internal exception messages and stack traces are never sent
 to the client. Request logging remains a separate future improvement.
 
-## Technical Standards
+The `src/services/api.ts` client on the frontend turns any non-2xx response
+into an `ApiError` carrying the same `code` and `issues`, so the UI can show
+the real reason a request failed instead of guessing from the status code.
+
+## Demo mode
+
+`npm run build:pages` builds the frontend with `VITE_DEMO_MODE=true` (set in
+`.env.pages`) and a `/specship/` base path for GitHub Pages. In that mode
+`src/services/index.ts` selects `demoApi.ts` instead of `api.ts`:
+
+- Reads and writes go to the same `createMemorySpecStore` the server uses,
+  imported straight from `shared/specStore.ts`.
+- Writes are validated with the same Zod schemas as the server
+  (`shared/validation.ts`), so bad input is rejected the same way.
+- The current spec list is saved to `localStorage` under a namespaced key
+  after every change, and reloaded on the next visit. A "Reset demo data"
+  control clears it and reseeds the store.
+- There is no client-side routing in this app, so the Pages build does not
+  need hash routing or a 404 fallback page.
+
+## Technical standards
 
 - Keep request and response contracts typed.
 - Validate incoming writes before they hit storage.
 - Keep persistence behind a small interface so tests can use memory storage.
 - Run tests, lint, and build before pushing.
 
-## Production Direction
+## Possible next steps
 
-Next production-grade additions would be authentication, proper migrations, structured logging, deploy previews, and cloud environment documentation.
+Authentication, real SQL migrations, structured request logging, and
+deploy previews would be the next additions if this moved beyond a
+single-team tool.
