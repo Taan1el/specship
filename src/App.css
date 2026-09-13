@@ -5,9 +5,34 @@
 
 .hero-section,
 .delivery-strip,
-.workspace-grid {
+.workspace-grid,
+.demo-notice {
   margin: 0 auto 24px;
   max-width: 1240px;
+}
+
+.demo-notice {
+  background: #fbf2e3;
+  border: 1px solid #e7c98d;
+  border-radius: 8px;
+  color: #6b5117;
+  font-size: 0.86rem;
+  padding: 10px 16px;
+}
+
+.demo-notice button {
+  background: none;
+  border: none;
+  color: #2f6b7a;
+  cursor: pointer;
+  font-weight: 800;
+  min-height: 0;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.demo-notice a {
+  color: #2f6b7a;
 }
 
 .hero-section {
@@ -244,6 +269,17 @@ button:hover {
   background: #c4513d;
   border-color: #c4513d;
   color: #ffffff;
+}
+
+.form-error {
+  background: #fbeae7;
+  border: 1px solid #e3a698;
+  border-radius: 6px;
+  color: #8a2f1e;
+  font-size: 0.86rem;
+  font-weight: 700;
+  margin: 0;
+  padding: 8px 12px;
 }
 
 @media (max-width: 900px) {

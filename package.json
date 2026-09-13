@@ -7,6 +7,7 @@
     "dev": "vite",
     "dev:api": "tsx server/index.ts",
     "build": "tsc -b && tsc -p tsconfig.server.json && vite build",
+    "build:pages": "tsc -b && vite build --mode pages",
     "lint": "oxlint",
     "start:api": "node dist-server/server/index.js",
     "test": "vitest run",

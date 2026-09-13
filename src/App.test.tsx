@@ -128,4 +128,106 @@ describe('SpecShip dashboard', () => {
       expect.objectContaining({ method: 'POST' }),
     )
   })
+
+  it('shows the server validation error instead of faking a saved spec', async () => {
+    const user = userEvent.setup()
+
+    render(<App />)
+    await screen.findByText('Spec intake dashboard')
+
+    fetchMock.mockImplementationOnce(async () =>
+      jsonResponse(
+        {
+          code: 'VALIDATION_ERROR',
+          error: 'Invalid request',
+          issues: [{ path: ['owner'], message: 'Owner is too short' }],
+        },
+        400,
+      ),
+    )
+
+    await user.type(screen.getByLabelText('Title'), 'Mobile release notes')
+    await user.type(screen.getByLabelText('Owner'), 'Platform')
+    await user.type(
+      screen.getByLabelText('Requirement'),
+      'Release managers need a short summary before publishing a feature.',
+    )
+    await user.type(
+      screen.getByLabelText('Acceptance criterion'),
+      'Show publishing status and rollback notes.',
+    )
+    await user.click(screen.getByRole('button', { name: 'Create spec' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Owner is too short')
+    expect(
+      screen.queryByRole('heading', { name: 'Mobile release notes' }),
+    ).not.toBeInTheDocument()
+  })
+
+  it('keeps working locally when the create request cannot reach the API', async () => {
+    const user = userEvent.setup()
+
+    render(<App />)
+    await screen.findByText('Spec intake dashboard')
+
+    fetchMock.mockImplementationOnce(async () => {
+      throw new TypeError('Failed to fetch')
+    })
+
+    await user.type(screen.getByLabelText('Title'), 'Offline release notes')
+    await user.type(screen.getByLabelText('Owner'), 'Platform')
+    await user.type(
+      screen.getByLabelText('Requirement'),
+      'Release managers need a short summary before publishing a feature.',
+    )
+    await user.type(
+      screen.getByLabelText('Acceptance criterion'),
+      'Show publishing status and rollback notes.',
+    )
+    await user.click(screen.getByRole('button', { name: 'Create spec' }))
+
+    expect(
+      await screen.findByRole('heading', { name: 'Offline release notes' }),
+    ).toBeInTheDocument()
+    expect(await screen.findByText('Offline')).toBeInTheDocument()
+  })
+
+  it('shows an error and keeps the status when the API rejects a move', async () => {
+    const user = userEvent.setup()
+
+    render(<App />)
+    const moveButton = await screen.findByRole('button', {
+      name: 'Move Spec intake dashboard from In progress',
+    })
+
+    fetchMock.mockImplementationOnce(async () =>
+      jsonResponse({ code: 'SPEC_NOT_FOUND', error: 'Spec not found' }, 404),
+    )
+
+    await user.click(moveButton)
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Spec not found')
+    expect(
+      screen.getByRole('button', { name: 'Move Spec intake dashboard from In progress' }),
+    ).toBeInTheDocument()
+  })
+
+  it('falls back to a local status change when the move request cannot reach the API', async () => {
+    const user = userEvent.setup()
+
+    render(<App />)
+    const moveButton = await screen.findByRole('button', {
+      name: 'Move Spec intake dashboard from In progress',
+    })
+
+    fetchMock.mockImplementationOnce(async () => {
+      throw new TypeError('Failed to fetch')
+    })
+
+    await user.click(moveButton)
+
+    expect(
+      await screen.findByRole('button', { name: 'Move Spec intake dashboard from Review' }),
+    ).toBeInTheDocument()
+  })
 })

@@ -9,6 +9,14 @@ import {
   type SpecStatus,
 } from '../shared/spec'
 import './App.css'
+import {
+  ApiError,
+  createSpec as createSpecRequest,
+  isDemoMode,
+  listSpecs,
+  resetDemoData,
+  updateSpecStatus as updateSpecStatusRequest,
+} from './services'
 
 const priorities: SpecPriority[] = ['High', 'Medium', 'Low']
 
@@ -24,6 +32,8 @@ function App() {
   const [specs, setSpecs] = useState<ProductSpec[]>(seedSpecs)
   const [selectedStatus, setSelectedStatus] = useState<'All' | SpecStatus>('All')
   const [form, setForm] = useState<CreateSpecInput>(emptyForm)
+  const [formError, setFormError] = useState<string | null>(null)
+  const [listError, setListError] = useState<string | null>(null)
   const [apiState, setApiState] = useState<'Loading' | 'Ready' | 'Offline'>(
     'Loading',
   )
@@ -31,13 +41,7 @@ function App() {
   useEffect(() => {
     async function loadSpecs() {
       try {
-        const response = await fetch('/api/specs')
-
-        if (!response.ok) {
-          throw new Error('Spec API unavailable')
-        }
-
-        setSpecs((await response.json()) as ProductSpec[])
+        setSpecs(await listSpecs())
         setApiState('Ready')
       } catch {
         setApiState('Offline')
@@ -60,31 +64,33 @@ function App() {
 
   async function createSpec(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    setFormError(null)
 
-    const input = {
+    const input: CreateSpecInput = {
       ...form,
       acceptanceCriteria: form.acceptanceCriteria.filter(Boolean),
     }
 
     if (!input.title || !input.owner || !input.requirement || input.acceptanceCriteria.length === 0) {
+      setFormError('Fill in a title, owner, requirement, and at least one acceptance criterion.')
       return
     }
 
     try {
-      const response = await fetch('/api/specs', {
-        body: JSON.stringify(input),
-        headers: { 'Content-Type': 'application/json' },
-        method: 'POST',
-      })
-
-      if (!response.ok) {
-        throw new Error('Spec create failed')
-      }
-
-      setSpecs([(await response.json()) as ProductSpec, ...specs])
+      const spec = await createSpecRequest(input)
+      setSpecs((current) => [spec, ...current])
       setApiState('Ready')
       setForm(emptyForm)
-    } catch {
+    } catch (error) {
+      if (error instanceof ApiError) {
+        // The request reached the API and it rejected the input. Show the
+        // real reason instead of pretending the spec was created.
+        setFormError(error.issues?.[0]?.message ?? error.message)
+        return
+      }
+
+      // The request never reached the API (offline, API not running). Keep
+      // the workflow usable by saving the spec locally until it is back.
       const spec: ProductSpec = {
         ...input,
         id: `local-${Date.now()}`,
@@ -92,7 +98,7 @@ function App() {
         updatedAt: new Date().toISOString(),
       }
 
-      setSpecs([spec, ...specs])
+      setSpecs((current) => [spec, ...current])
       setApiState('Offline')
       setForm(emptyForm)
     }
@@ -102,28 +108,25 @@ function App() {
     const nextStatus =
       statusOrder[(statusOrder.indexOf(spec.status) + 1) % statusOrder.length]
 
+    setListError(null)
+
     try {
-      const response = await fetch(`/api/specs/${spec.id}/status`, {
-        body: JSON.stringify({ status: nextStatus }),
-        headers: { 'Content-Type': 'application/json' },
-        method: 'PATCH',
-      })
+      const updatedSpec = await updateSpecStatusRequest(spec.id, nextStatus)
 
-      if (!response.ok) {
-        throw new Error('Spec status update failed')
-      }
-
-      const updatedSpec = (await response.json()) as ProductSpec
-
-      setSpecs(
-        specs.map((currentSpec) =>
+      setSpecs((current) =>
+        current.map((currentSpec) =>
           currentSpec.id === spec.id ? updatedSpec : currentSpec,
         ),
       )
       setApiState('Ready')
-    } catch {
-      setSpecs(
-        specs.map((currentSpec) =>
+    } catch (error) {
+      if (error instanceof ApiError) {
+        setListError(`Could not move "${spec.title}": ${error.message}`)
+        return
+      }
+
+      setSpecs((current) =>
+        current.map((currentSpec) =>
           currentSpec.id === spec.id
             ? {
                 ...currentSpec,
@@ -137,6 +140,14 @@ function App() {
     }
   }
 
+  async function handleResetDemoData() {
+    resetDemoData?.()
+    setSpecs(await listSpecs())
+    setSelectedStatus('All')
+    setFormError(null)
+    setListError(null)
+  }
+
   function updateCriterion(index: number, value: string) {
     setForm({
       ...form,
@@ -148,6 +159,19 @@ function App() {
 
   return (
     <main className="app-shell">
+      {isDemoMode && (
+        <p className="demo-notice">
+          <strong>Demo mode:</strong> data is simulated in your browser and saved
+          only on this device.{' '}
+          <button type="button" onClick={handleResetDemoData}>
+            Reset demo data
+          </button>{' '}
+          <a href="https://github.com/Taan1el/specship" target="_blank" rel="noreferrer">
+            View the source on GitHub
+          </a>
+        </p>
+      )}
+
       <section className="hero-section">
         <div>
           <p className="eyebrow">React + TypeScript + Node delivery tracker</p>
@@ -178,8 +202,9 @@ function App() {
           <p className="label">API state</p>
           <h2>{apiState}</h2>
           <p>
-            Uses the Node API when available, with a local fallback for demo
-            continuity.
+            {isDemoMode
+              ? 'Running fully in your browser. Nothing is sent to a server.'
+              : 'Uses the Node API. If a request cannot reach it, changes are kept in this tab until it responds again.'}
           </p>
         </div>
         <div>
@@ -215,6 +240,12 @@ function App() {
               )}
             </div>
           </div>
+
+          {listError && (
+            <p className="form-error" role="alert">
+              {listError}
+            </p>
+          )}
 
           <div className="spec-list" aria-label="Filtered product specs">
             {filteredSpecs.map((spec) => (
@@ -314,6 +345,11 @@ function App() {
                 value={form.acceptanceCriteria[0]}
               />
             </label>
+            {formError && (
+              <p className="form-error" role="alert">
+                {formError}
+              </p>
+            )}
             <button type="submit">Create spec</button>
           </form>
         </aside>
