@@ -1,7 +1,20 @@
 {
   "name": "specship",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "Product spec tracker that follows a feature from requirement to shipped, with a browser-only demo mode.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Taan1el/specship.git"
+  },
+  "homepage": "https://taan1el.github.io/specship/",
+  "bugs": {
+    "url": "https://github.com/Taan1el/specship/issues"
+  },
+  "engines": {
+    "node": ">=24.0.0"
+  },
   "type": "module",
   "scripts": {
     "dev": "vite",
