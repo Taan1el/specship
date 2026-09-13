@@ -1,6 +1,11 @@
 import pg from 'pg'
-import type { CreateSpecInput, ProductSpec, SpecStatus } from '../shared/spec.js'
+import type { ProductSpec, SpecStatus } from '../shared/spec.js'
 import { seedSpecs } from '../shared/spec.js'
+import { slugify } from '../shared/specStore.js'
+import type { SpecStore } from '../shared/specStore.js'
+
+export type { SpecStore } from '../shared/specStore.js'
+export { createMemorySpecStore } from '../shared/specStore.js'
 
 type SpecRow = {
   id: string
@@ -13,20 +18,7 @@ type SpecRow = {
   updated_at: Date
 }
 
-export type SpecStore = {
-  create(input: CreateSpecInput): Promise<ProductSpec>
-  list(): Promise<ProductSpec[]>
-  updateStatus(id: string, status: SpecStatus): Promise<ProductSpec | null>
-}
-
 const { Pool } = pg
-
-function slugify(value: string) {
-  return value
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)/g, '')
-}
 
 function toSpec(row: SpecRow): ProductSpec {
   return {
@@ -41,41 +33,11 @@ function toSpec(row: SpecRow): ProductSpec {
   }
 }
 
-export function createMemorySpecStore(initialSpecs = seedSpecs): SpecStore {
-  let specs = [...initialSpecs]
-
-  return {
-    async create(input) {
-      const spec: ProductSpec = {
-        ...input,
-        id: `${slugify(input.title)}-${Date.now()}`,
-        status: 'Backlog',
-        updatedAt: new Date().toISOString(),
-      }
-
-      specs = [spec, ...specs]
-      return spec
-    },
-    async list() {
-      return specs
-    },
-    async updateStatus(id, status) {
-      let updatedSpec: ProductSpec | null = null
-
-      specs = specs.map((spec) => {
-        if (spec.id !== id) {
-          return spec
-        }
-
-        updatedSpec = { ...spec, status, updatedAt: new Date().toISOString() }
-        return updatedSpec
-      })
-
-      return updatedSpec
-    },
-  }
-}
-
+/**
+ * PostgreSQL-backed spec store used for container and database runs. Uses
+ * the `pg` Node client, so this stays server-only (not imported by the
+ * browser demo build).
+ */
 export function createPostgresSpecStore(connectionString: string): SpecStore {
   const pool = new Pool({ connectionString })
 
