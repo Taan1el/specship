@@ -11,23 +11,26 @@ owner, priority, and delivery status.
 **Live demo:** https://taan1el.github.io/specship/
 
 The demo runs entirely in your browser: no backend, sample data seeded on
-load, and a "Reset demo data" control if you want to start over.
+load, and a "Reset sample data" control if you want to start over.
 
 ## Screenshot
 
-![SpecShip board, filtered to Shipped specs](docs/screenshots/shipped-filter.png)
+![SpecShip board with a selected spec's detail panel open](docs/screenshots/specship-desktop.png)
 
-More in [docs/screenshots](docs/screenshots).
+More in [docs/screenshots](docs/screenshots), including the mobile layout.
 
 ## Features
 
-- Board of product specs with owner, priority, requirement, and acceptance
-  criteria, filterable by delivery status (`Backlog`, `In progress`,
-  `Review`, `Shipped`).
+- Specs grouped by delivery status (`Backlog`, `In progress`, `Review`,
+  `Shipped`) in a dense list, each row showing owner and priority as small
+  badges, filterable with a compact segmented control.
+- Select a spec to see its full requirement and acceptance criteria in the
+  side column, next to the create-spec form.
 - Move a spec to its next delivery status with one click.
 - Create a spec from a form; the API validates the input and rejects
   incomplete or too-short fields with a specific message.
-- Live counts of active, high-priority, and shipped specs.
+- One stats strip with live counts of active, high-priority, and shipped
+  specs, plus a one-line sync indicator for the connection to the API.
 - Works two ways from the same code: against the real Express API, or fully
   in the browser in demo mode (see [docs/architecture.md](docs/architecture.md#demo-mode)).
 
@@ -165,7 +168,7 @@ Full details in [docs/architecture.md](docs/architecture.md#error-responses).
 npm test
 ```
 
-41 tests across 5 files:
+45 tests across 6 files:
 
 - `shared/specStore.test.ts`: the in-memory store (create, list, status
   updates, and updating a spec that does not exist).
@@ -177,6 +180,8 @@ npm test
 - `src/App.test.tsx`: filtering, moving a spec, creating a spec, and the
   error-handling paths (a rejected request shows its message; only an
   unreachable API falls back to a local change).
+- `src/utils/pluralize.test.ts`: singular and plural counts for the stats
+  strip and spec groups.
 
 ## Deployment
 

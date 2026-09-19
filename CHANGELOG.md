@@ -3,6 +3,17 @@
 All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [Unreleased]
+
+### Changed
+
+- Redesigned the interface around the shared product design tokens: Sora, Geist, and Geist Mono replace Inter, the header wordmark drops from a 108px hero to 40px, and every box-shadow except the focus ring is gone.
+- Replaced the repeated stat boxes and card grids with one stats strip and a spec list grouped by delivery status, with priority and owner as small badges instead of cards.
+- Added a selected-spec detail panel and moved the create-spec form into a single side column, next to the spec list.
+- Removed the copy and panels that described the tech stack instead of the product; the header subtitle now describes what the tool does for the people using it.
+- Added a slim demo bar with the reset action and a link to the source, replacing the inline demo notice.
+- Raised every control to at least 44px tall and confirmed the layout holds to one column with no horizontal page scroll under 720px.
+
 ## [1.0.0] - 2026-09-13
 
 ### Added
