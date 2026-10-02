@@ -34,3 +34,17 @@ jobs:
 
       - name: Build Docker image
         run: docker build -t specship:ci .
+      - name: Run the container and check the API
+        run: |
+          docker run -d --name specship -p 127.0.0.1:4175:4175 specship:ci
+          ok=0
+          for i in $(seq 1 40); do
+            if curl -fsS http://127.0.0.1:4175/api/health -o health.json; then ok=1; break; fi
+            sleep 2
+          done
+          test "$ok" = "1"
+          grep -q '"ok":true' health.json
+          curl -fsS http://127.0.0.1:4175/api/specs | grep -q '^\['
+      - name: Container logs
+        if: always()
+        run: docker logs specship || true
