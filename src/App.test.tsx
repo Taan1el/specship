@@ -13,6 +13,11 @@ function jsonResponse(body: unknown, status = 200) {
 }
 
 describe('SpecShip dashboard', () => {
+  async function openSpec(title: string) {
+    const row = await screen.findByRole('button', { name: new RegExp(title) })
+    await userEvent.click(row)
+  }
+
   let specs: ProductSpec[]
   let fetchMock: ReturnType<typeof vi.fn>
 
@@ -72,7 +77,7 @@ describe('SpecShip dashboard', () => {
 
     render(<App />)
 
-    await screen.findByText('Spec intake dashboard')
+    await screen.findByRole('button', { name: /Spec intake dashboard/ })
     await user.click(screen.getByRole('button', { name: 'Review' }))
 
     const list = screen.getByLabelText('Filtered product specs')
@@ -85,6 +90,7 @@ describe('SpecShip dashboard', () => {
 
     render(<App />)
 
+    await openSpec('Spec intake dashboard')
     const moveButton = await screen.findByRole('button', {
       name: 'Move Spec intake dashboard from In progress',
     })
@@ -106,7 +112,8 @@ describe('SpecShip dashboard', () => {
 
     render(<App />)
 
-    await screen.findByText('Spec intake dashboard')
+    await openSpec('Spec intake dashboard')
+    await user.click(screen.getByRole('button', { name: 'New spec' }))
     await user.type(screen.getByLabelText('Title'), 'Mobile release notes')
     await user.type(screen.getByLabelText('Owner'), 'Platform')
     await user.selectOptions(screen.getByLabelText('Priority'), 'High')
@@ -133,7 +140,7 @@ describe('SpecShip dashboard', () => {
     const user = userEvent.setup()
 
     render(<App />)
-    await screen.findByText('Spec intake dashboard')
+    await openSpec('Spec intake dashboard')
 
     fetchMock.mockImplementationOnce(async () =>
       jsonResponse(
@@ -146,6 +153,7 @@ describe('SpecShip dashboard', () => {
       ),
     )
 
+    await user.click(screen.getByRole('button', { name: 'New spec' }))
     await user.type(screen.getByLabelText('Title'), 'Mobile release notes')
     await user.type(screen.getByLabelText('Owner'), 'Platform')
     await user.type(
@@ -168,12 +176,13 @@ describe('SpecShip dashboard', () => {
     const user = userEvent.setup()
 
     render(<App />)
-    await screen.findByText('Spec intake dashboard')
+    await openSpec('Spec intake dashboard')
 
     fetchMock.mockImplementationOnce(async () => {
       throw new TypeError('Failed to fetch')
     })
 
+    await user.click(screen.getByRole('button', { name: 'New spec' }))
     await user.type(screen.getByLabelText('Title'), 'Offline release notes')
     await user.type(screen.getByLabelText('Owner'), 'Platform')
     await user.type(
@@ -196,6 +205,7 @@ describe('SpecShip dashboard', () => {
     const user = userEvent.setup()
 
     render(<App />)
+    await openSpec('Spec intake dashboard')
     const moveButton = await screen.findByRole('button', {
       name: 'Move Spec intake dashboard from In progress',
     })
@@ -216,6 +226,7 @@ describe('SpecShip dashboard', () => {
     const user = userEvent.setup()
 
     render(<App />)
+    await openSpec('Spec intake dashboard')
     const moveButton = await screen.findByRole('button', {
       name: 'Move Spec intake dashboard from In progress',
     })
@@ -229,5 +240,38 @@ describe('SpecShip dashboard', () => {
     expect(
       await screen.findByRole('button', { name: 'Move Spec intake dashboard from Review' }),
     ).toBeInTheDocument()
+  })
+
+  it('shows the first spec as a document and opens another from the list', async () => {
+    render(<App />)
+
+    expect(
+      await screen.findByRole('heading', { level: 2, name: 'Release checklist' }),
+    ).toBeInTheDocument()
+
+    await openSpec('API contract review')
+
+    expect(
+      screen.getByRole('heading', { level: 2, name: 'API contract review' }),
+    ).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Acceptance criteria' })).toBeInTheDocument()
+  })
+
+  it('closes the new spec dialog with Escape and returns focus to the opener', async () => {
+    const user = userEvent.setup()
+
+    render(<App />)
+    await screen.findByRole('button', { name: /Spec intake dashboard/ })
+
+    const opener = screen.getByRole('button', { name: 'New spec' })
+    await user.click(opener)
+
+    const dialog = screen.getByRole('dialog', { name: 'New spec' })
+    expect(within(dialog).getByLabelText('Title')).toHaveFocus()
+
+    await user.keyboard('{Escape}')
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(opener).toHaveFocus()
   })
 })

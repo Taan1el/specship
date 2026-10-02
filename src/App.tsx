@@ -30,6 +30,7 @@ function App() {
   const [specs, setSpecs] = useState<ProductSpec[]>(seedSpecs)
   const [selectedStatus, setSelectedStatus] = useState<'All' | SpecStatus>('All')
   const [selectedSpecId, setSelectedSpecId] = useState<string>()
+  const [dialogOpen, setDialogOpen] = useState(false)
   const [form, setForm] = useState<CreateSpecInput>(emptyForm)
   const [formError, setFormError] = useState<string | null>(null)
   const [listError, setListError] = useState<string | null>(null)
@@ -52,7 +53,18 @@ function App() {
 
   const shippedCount = specs.filter((spec) => spec.status === 'Shipped').length
   const highPriorityCount = specs.filter((spec) => spec.priority === 'High').length
-  const selectedSpec = specs.find((spec) => spec.id === selectedSpecId)
+  const visibleSpecs = statusOrder.flatMap((status) =>
+    selectedStatus === 'All' || selectedStatus === status
+      ? specs.filter((spec) => spec.status === status)
+      : [],
+  )
+  const selectedSpec =
+    visibleSpecs.find((spec) => spec.id === selectedSpecId) ?? visibleSpecs[0]
+
+  function closeDialog() {
+    setDialogOpen(false)
+    setFormError(null)
+  }
 
   async function createSpec(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -73,6 +85,9 @@ function App() {
       setSpecs((current) => [spec, ...current])
       setApiState('Ready')
       setForm(emptyForm)
+      setSelectedStatus('All')
+      setSelectedSpecId(spec.id)
+      setDialogOpen(false)
     } catch (error) {
       if (error instanceof ApiError) {
         // The request reached the API and it rejected the input. Show the
@@ -93,6 +108,9 @@ function App() {
       setSpecs((current) => [spec, ...current])
       setApiState('Offline')
       setForm(emptyForm)
+      setSelectedStatus('All')
+      setSelectedSpecId(spec.id)
+      setDialogOpen(false)
     }
   }
 
@@ -144,40 +162,38 @@ function App() {
   return (
     <div className="app-shell">
       {isDemoMode && <DemoBanner onReset={handleResetDemoData} />}
-      <Header />
+      <Header onNewSpec={() => setDialogOpen(true)} />
 
-      <main className="app-main">
-        <StatsBar
-          activeCount={specs.length}
-          highPriorityCount={highPriorityCount}
-          shippedCount={shippedCount}
-        />
+      <main className="page reader">
+        <aside className="reader-list">
+          <StatsBar
+            activeCount={specs.length}
+            highPriorityCount={highPriorityCount}
+            shippedCount={shippedCount}
+          />
+          <SpecBoard
+            listError={listError}
+            onSelectSpec={setSelectedSpecId}
+            onStatusChange={setSelectedStatus}
+            selectedSpecId={selectedSpec?.id}
+            selectedStatus={selectedStatus}
+            specs={specs}
+          />
+          <SyncStatus state={apiState} />
+        </aside>
 
-        <div className="content-grid">
-          <div className="main-column">
-            <SpecBoard
-              listError={listError}
-              onMoveSpec={moveSpec}
-              onSelectSpec={setSelectedSpecId}
-              onStatusChange={setSelectedStatus}
-              selectedSpecId={selectedSpec?.id}
-              selectedStatus={selectedStatus}
-              specs={specs}
-            />
-          </div>
-
-          <aside className="side-column">
-            <SyncStatus state={apiState} />
-            <SpecDetail spec={selectedSpec} />
-            <SpecForm
-              form={form}
-              formError={formError}
-              onChange={setForm}
-              onSubmit={createSpec}
-            />
-          </aside>
-        </div>
+        <SpecDetail onMoveSpec={moveSpec} spec={selectedSpec} />
       </main>
+
+      {dialogOpen && (
+        <SpecForm
+          form={form}
+          formError={formError}
+          onChange={setForm}
+          onClose={closeDialog}
+          onSubmit={createSpec}
+        />
+      )}
     </div>
   )
 }

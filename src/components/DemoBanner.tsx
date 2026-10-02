@@ -11,7 +11,7 @@ export function DemoBanner({ onReset }: DemoBannerProps) {
 
   return (
     <output className="demo-bar">
-      <div className="demo-bar-inner">
+      <div className="page demo-bar-inner">
         <span>Demo: everything runs in your browser with sample data.</span>
         <span className="demo-bar-links">
           <button className="link-btn" onClick={handleReset} type="button">

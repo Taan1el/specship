@@ -1,4 +1,3 @@
-import { ArrowRight } from 'lucide-react'
 import { statusOrder, type ProductSpec, type SpecStatus } from '../../shared/spec'
 import { formatCount } from '../utils/pluralize'
 
@@ -8,15 +7,10 @@ type SpecBoardProps = {
   onStatusChange: (status: 'All' | SpecStatus) => void
   selectedSpecId?: string
   onSelectSpec: (id: string) => void
-  onMoveSpec: (spec: ProductSpec) => void
   listError: string | null
 }
 
 const statusFilters: Array<'All' | SpecStatus> = ['All', ...statusOrder]
-
-function nextStatus(status: SpecStatus): SpecStatus {
-  return statusOrder[(statusOrder.indexOf(status) + 1) % statusOrder.length]
-}
 
 export function SpecBoard({
   specs,
@@ -24,7 +18,6 @@ export function SpecBoard({
   onStatusChange,
   selectedSpecId,
   onSelectSpec,
-  onMoveSpec,
   listError,
 }: SpecBoardProps) {
   const statusesToShow = selectedStatus === 'All' ? statusOrder : [selectedStatus]
@@ -35,25 +28,22 @@ export function SpecBoard({
   const visibleCount = groups.reduce((total, group) => total + group.specs.length, 0)
 
   return (
-    <section>
-      <div className="section-heading-row">
-        <div>
-          <h2 className="section-heading">Specs by delivery status</h2>
-          <p className="section-description">{formatCount(visibleCount, 'spec')} in view</p>
-        </div>
-        <div className="segmented" aria-label="Filter specs by status">
-          {statusFilters.map((status) => (
-            <button
-              aria-pressed={status === selectedStatus}
-              className={status === selectedStatus ? 'active' : ''}
-              key={status}
-              onClick={() => onStatusChange(status)}
-              type="button"
-            >
-              {status}
-            </button>
-          ))}
-        </div>
+    <nav aria-label="Specs" className="spec-index">
+      <h2 className="index-heading">Specs by delivery status</h2>
+      <p className="index-count">{formatCount(visibleCount, 'spec')} in view</p>
+
+      <div className="filter-row" aria-label="Filter specs by status">
+        {statusFilters.map((status) => (
+          <button
+            aria-pressed={status === selectedStatus}
+            className={status === selectedStatus ? 'filter-btn active' : 'filter-btn'}
+            key={status}
+            onClick={() => onStatusChange(status)}
+            type="button"
+          >
+            {status}
+          </button>
+        ))}
       </div>
 
       {listError && (
@@ -64,7 +54,7 @@ export function SpecBoard({
 
       <div aria-label="Filtered product specs" className="spec-groups">
         {groups.map((group) => (
-          <div className="spec-group" key={group.status}>
+          <section className="spec-group" key={group.status}>
             <h3 className="group-heading">
               <span className={`status-dot status-dot-${group.status.toLowerCase().replace(/\s+/g, '-')}`} aria-hidden="true" />
               {group.status}
@@ -76,41 +66,25 @@ export function SpecBoard({
             ) : (
               <ul className="spec-rows">
                 {group.specs.map((spec) => (
-                  <li
-                    className={spec.id === selectedSpecId ? 'spec-row selected' : 'spec-row'}
-                    key={spec.id}
-                  >
+                  <li key={spec.id}>
                     <button
-                      className="spec-select-btn"
+                      aria-current={spec.id === selectedSpecId ? 'true' : undefined}
+                      className={spec.id === selectedSpecId ? 'spec-select-btn selected' : 'spec-select-btn'}
                       onClick={() => onSelectSpec(spec.id)}
                       type="button"
                     >
-                      <h4>{spec.title}</h4>
-                      <p className="spec-requirement">{spec.requirement}</p>
-                    </button>
-                    <span className={`badge priority-badge priority-${spec.priority.toLowerCase()}`}>
-                      {spec.priority}
-                    </span>
-                    <span className="badge owner-badge">{spec.owner}</span>
-                    <span className="spec-updated">
-                      {new Date(spec.updatedAt).toLocaleDateString()}
-                    </span>
-                    <button
-                      aria-label={`Move ${spec.title} from ${spec.status}`}
-                      className="btn btn-secondary move-btn"
-                      onClick={() => onMoveSpec(spec)}
-                      type="button"
-                    >
-                      Move to {nextStatus(spec.status)}
-                      <ArrowRight aria-hidden="true" size={16} strokeWidth={1.75} />
+                      <span className="spec-title">{spec.title}</span>
+                      <span className="spec-meta">
+                        {spec.priority} priority, {spec.owner}
+                      </span>
                     </button>
                   </li>
                 ))}
               </ul>
             )}
-          </div>
+          </section>
         ))}
       </div>
-    </section>
+    </nav>
   )
 }
