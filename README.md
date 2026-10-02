@@ -15,22 +15,21 @@ load, and a "Reset sample data" control if you want to start over.
 
 ## Screenshot
 
-![SpecShip board with a selected spec's detail panel open](docs/screenshots/specship-desktop.png)
+![SpecShip spec reader with the spec list on the left and the selected spec as a document](docs/screenshots/specship-desktop.png)
 
-More in [docs/screenshots](docs/screenshots), including the mobile layout.
+More in [docs/screenshots](docs/screenshots), including the New spec dialog and the mobile layout.
 
 ## Features
 
-- Specs grouped by delivery status (`Backlog`, `In progress`, `Review`,
-  `Shipped`) in a dense list, each row showing owner and priority as small
-  badges, filterable with a compact segmented control.
-- Select a spec to see its full requirement and acceptance criteria in the
-  side column, next to the create-spec form.
-- Move a spec to its next delivery status with one click.
-- Create a spec from a form; the API validates the input and rejects
-  incomplete or too-short fields with a specific message.
-- One stats strip with live counts of active, high-priority, and shipped
-  specs, plus a one-line sync indicator for the connection to the API.
+- A spec reader: the left column lists specs grouped by delivery status
+  (`Backlog`, `In progress`, `Review`, `Shipped`) and can be filtered by
+  status; the right side shows the selected spec as a document with the
+  requirement as prose and the acceptance criteria as a numbered list.
+- Move the open spec to its next delivery status with one click.
+- Create a spec from the New spec dialog; the API validates the input and
+  rejects incomplete or too-short fields with a specific message.
+- A one-line tally of specs, shipped specs, and high-priority specs, plus a
+  sync indicator for the connection to the API.
 - Works two ways from the same code: against the real Express API, or fully
   in the browser in demo mode (see [docs/architecture.md](docs/architecture.md#demo-mode)).
 

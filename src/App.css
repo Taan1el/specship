@@ -155,13 +155,14 @@
 .filter-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px 4px;
+  gap: 4px 0;
   margin-top: 12px;
+  margin-left: -8px;
 }
 
 .filter-btn {
   min-height: 44px;
-  padding: 0 12px;
+  padding: 0 9px;
   background: transparent;
   border: 1px solid transparent;
   border-radius: var(--radius);
@@ -366,14 +367,15 @@
 }
 
 .doc-prose,
-.criteria-list {
+ol.criteria-list {
   margin-top: 12px;
   font-family: var(--font-heading);
   font-size: 19px;
   line-height: 1.65;
 }
 
-.criteria-list {
+ol.criteria-list {
+  list-style: decimal;
   padding-left: 1.6em;
 }
 

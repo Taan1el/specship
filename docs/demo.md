@@ -20,15 +20,15 @@ runs the demo mode described below: no backend, sample data in your browser.
      criteria, and latest update visible.
 
 3. **Move a spec forward**
-   - Click a spec's status button to move it to the next delivery state.
+   - Select a spec, then use the Move button under the document to send it to the next delivery state.
    - The change is saved through `PATCH /api/specs/:id/status` (or, in demo
      mode, the in-browser store). If the request reaches the API and it
-     rejects the change, the card keeps its current status and shows why.
+     rejects the change, the spec keeps its current status and shows why.
      If the API cannot be reached at all, the UI applies the change locally
      and marks the API state as offline until it recovers.
 
 4. **Create a spec**
-   - Fill in the new feature form with a title, owner, priority,
+   - Open New spec and fill in the dialog with a title, owner, priority,
      requirement, and acceptance criterion.
    - Input is validated with the same Zod schema on the server and in demo
      mode, so the two behave the same way for bad input.

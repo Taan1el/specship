@@ -53,14 +53,8 @@ export function SpecForm({ form, formError, onChange, onClose, onSubmit }: SpecF
 
   return (
     <div className="dialog-backdrop">
-      {/* The backdrop click closes the dialog; keyboard users have Escape and the Close button. */}
-      <button
-        aria-hidden="true"
-        className="dialog-dismiss"
-        onClick={onClose}
-        tabIndex={-1}
-        type="button"
-      />
+      {/* Clicking the backdrop closes the dialog; keyboard users have Escape and the Close button. */}
+      <div aria-hidden="true" className="dialog-dismiss" onClick={onClose} />
       <div
         aria-labelledby="new-spec-heading"
         aria-modal="true"
