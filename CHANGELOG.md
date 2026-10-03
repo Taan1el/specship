@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+- Added a test that checks every sideways scrolling container is a labelled, keyboard-focusable region in the spec list, document view and New spec dialog.
 - Added automated accessibility checks to the test suite for the spec list with the document view and for the New spec dialog, using axe with the WCAG 2 A and AA rules. Color contrast is checked outside jsdom.
 
 ### Changed
