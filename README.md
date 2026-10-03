@@ -167,7 +167,7 @@ Full details in [docs/architecture.md](docs/architecture.md#error-responses).
 npm test
 ```
 
-45 tests across 6 files:
+49 tests across 7 files:
 
 - `shared/specStore.test.ts`: the in-memory store (create, list, status
   updates, and updating a spec that does not exist).
@@ -181,6 +181,9 @@ npm test
   unreachable API falls back to a local change).
 - `src/utils/pluralize.test.ts`: singular and plural counts for the stats
   strip and spec groups.
+- `src/App.a11y.test.tsx`: automated accessibility checks (axe, WCAG 2 A and
+  AA rules) on the list with the document view and on the New spec dialog.
+  jsdom cannot compute colors, so color contrast is checked outside jsdom.
 
 ## Deployment
 

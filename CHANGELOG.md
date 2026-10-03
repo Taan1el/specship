@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+
+- Added automated accessibility checks to the test suite for the spec list with the document view and for the New spec dialog, using axe with the WCAG 2 A and AA rules. Color contrast is checked outside jsdom.
+
 ### Changed
 
 - Gave SpecShip its own look as a spec reader: a cream page with dusk blue accents, Newsreader for headings and spec text, Figtree for labels and buttons, and DM Mono for dates and counts.
