@@ -32,6 +32,27 @@ describe('SpecShip API', () => {
     expect(create).not.toHaveBeenCalled()
   })
 
+  it.each([
+    ['title', 'x'.repeat(201)],
+    ['owner', 'x'.repeat(101)],
+    ['requirement', 'x'.repeat(5001)],
+    ['acceptanceCriteria', ['x'.repeat(501)]],
+    ['acceptanceCriteria', Array.from({ length: 26 }, () => 'Check result')],
+  ])('rejects oversized %s before storage', async (field, value) => {
+    const store = createMemorySpecStore()
+    const create = vi.spyOn(store, 'create')
+    const response = await request(createApp(store))
+      .post('/api/specs')
+      .send({ ...validInput, [field]: value })
+
+    expect(response.status).toBe(400)
+    expect(response.body.code).toBe('VALIDATION_ERROR')
+    expect(response.body.issues).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: expect.arrayContaining([field]) }),
+    ]))
+    expect(create).not.toHaveBeenCalled()
+  })
+
   it('rejects invalid status changes before storage', async () => {
     const store = createMemorySpecStore()
     const updateStatus = vi.spyOn(store, 'updateStatus')

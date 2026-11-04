@@ -139,9 +139,10 @@ A `ProductSpec` looks like this:
 | POST | `/api/specs` | `{ title, owner, priority, requirement, acceptanceCriteria }` | `201` created `ProductSpec` (starts in `Backlog`) |
 | PATCH | `/api/specs/:id/status` | `{ status }` | `200` updated `ProductSpec` |
 
-Validation, on `POST /api/specs`: `title` at least 3 characters, `owner` at
-least 2 characters, `priority` one of `Low`/`Medium`/`High`, `requirement`
-at least 10 characters, `acceptanceCriteria` at least one non-empty string.
+Validation, on `POST /api/specs`: `title` 3–200 characters, `owner` 2–100
+characters, `priority` one of `Low`/`Medium`/`High`, `requirement` 10–5000
+characters, and 1–25 non-empty `acceptanceCriteria` entries of at most 500
+characters each. Surrounding whitespace is trimmed before length checks.
 
 ### Errors
 
