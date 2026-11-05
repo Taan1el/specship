@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import type { FormEvent, KeyboardEvent } from 'react'
 import { Plus, X } from 'lucide-react'
 import type { CreateSpecInput, SpecPriority } from '../../shared/spec'
+import { specFieldLimits } from '../../shared/validation'
 
 type SpecFormProps = {
   form: CreateSpecInput
@@ -77,6 +78,7 @@ export function SpecForm({ form, formError, onChange, onClose, onSubmit }: SpecF
           <label className="form-group">
             Title
             <input
+              maxLength={specFieldLimits.title}
               onChange={(event) => onChange({ ...form, title: event.target.value })}
               placeholder="Feature name"
               ref={titleRef}
@@ -88,6 +90,7 @@ export function SpecForm({ form, formError, onChange, onClose, onSubmit }: SpecF
             <label className="form-group">
               Owner
               <input
+                maxLength={specFieldLimits.owner}
                 onChange={(event) => onChange({ ...form, owner: event.target.value })}
                 placeholder="Frontend, Backend, Platform"
                 value={form.owner}
@@ -112,6 +115,7 @@ export function SpecForm({ form, formError, onChange, onClose, onSubmit }: SpecF
           <label className="form-group">
             Requirement
             <textarea
+              maxLength={specFieldLimits.requirement}
               onChange={(event) => onChange({ ...form, requirement: event.target.value })}
               placeholder="What user or business need does this solve?"
               value={form.requirement}
@@ -121,6 +125,7 @@ export function SpecForm({ form, formError, onChange, onClose, onSubmit }: SpecF
           <label className="form-group">
             Acceptance criterion
             <textarea
+              maxLength={specFieldLimits.criterion}
               onChange={(event) =>
                 onChange({ ...form, acceptanceCriteria: [event.target.value] })
               }

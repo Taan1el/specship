@@ -136,6 +136,21 @@ describe('SpecShip dashboard', () => {
     )
   })
 
+  it('keeps intake fields within the API length limits', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    await user.click(screen.getByRole('button', { name: 'New spec' }))
+
+    expect(screen.getByLabelText('Title')).toHaveAttribute('maxlength', '200')
+    expect(screen.getByLabelText('Owner')).toHaveAttribute('maxlength', '100')
+    expect(screen.getByLabelText('Requirement')).toHaveAttribute('maxlength', '5000')
+    expect(screen.getByLabelText('Acceptance criterion')).toHaveAttribute('maxlength', '500')
+
+    const title = screen.getByLabelText('Title') as HTMLInputElement
+    await user.type(title, 'a'.repeat(201))
+    expect(title.value).toHaveLength(200)
+  })
+
   it('shows the server validation error instead of faking a saved spec', async () => {
     const user = userEvent.setup()
 
