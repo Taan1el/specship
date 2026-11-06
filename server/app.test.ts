@@ -1,6 +1,7 @@
 import request from 'supertest'
 import { describe, expect, it, vi } from 'vitest'
 import { seedSpecs } from '../shared/spec.js'
+import { specFieldLimits } from '../shared/validation.js'
 import { createApp } from './app.js'
 import { createMemorySpecStore } from './specStore.js'
 
@@ -51,6 +52,34 @@ describe('SpecShip API', () => {
       expect.objectContaining({ path: expect.arrayContaining([field]) }),
     ]))
     expect(create).not.toHaveBeenCalled()
+  })
+
+  it('accepts every field at its maximum length', async () => {
+    const store = createMemorySpecStore()
+    const response = await request(createApp(store))
+      .post('/api/specs')
+      .send({
+        ...validInput,
+        title: 'T'.repeat(specFieldLimits.title),
+        owner: 'O'.repeat(specFieldLimits.owner),
+        requirement: 'R'.repeat(specFieldLimits.requirement),
+        acceptanceCriteria: ['C'.repeat(specFieldLimits.criterion)],
+      })
+
+    expect(response.status).toBe(201)
+    expect(response.body.title).toHaveLength(specFieldLimits.title)
+    expect(response.body.owner).toHaveLength(specFieldLimits.owner)
+    expect(response.body.requirement).toHaveLength(specFieldLimits.requirement)
+    expect(response.body.acceptanceCriteria[0]).toHaveLength(specFieldLimits.criterion)
+  })
+
+  it('accepts 25 acceptance criteria', async () => {
+    const response = await request(createApp(createMemorySpecStore()))
+      .post('/api/specs')
+      .send({ ...validInput, acceptanceCriteria: Array.from({ length: 25 }, (_, i) => `Check ${i + 1}`) })
+
+    expect(response.status).toBe(201)
+    expect(response.body.acceptanceCriteria).toHaveLength(25)
   })
 
   it('rejects invalid status changes before storage', async () => {
