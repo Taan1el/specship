@@ -485,6 +485,13 @@ ol.criteria-list {
   resize: vertical;
 }
 
+.form-count {
+  align-self: flex-end;
+  color: var(--ink-3);
+  font-size: 12px;
+  font-weight: 400;
+}
+
 .form-group input::placeholder,
 .form-group textarea::placeholder {
   color: var(--ink-3);

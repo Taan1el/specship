@@ -78,23 +78,29 @@ export function SpecForm({ form, formError, onChange, onClose, onSubmit }: SpecF
           <label className="form-group">
             Title
             <input
+              aria-label="Title"
+              aria-describedby="title-count"
               maxLength={specFieldLimits.title}
               onChange={(event) => onChange({ ...form, title: event.target.value })}
               placeholder="Feature name"
               ref={titleRef}
               value={form.title}
             />
+            <span className="form-count" id="title-count">{form.title.length} / {specFieldLimits.title} characters</span>
           </label>
 
           <div className="form-pair">
             <label className="form-group">
               Owner
               <input
+                aria-label="Owner"
+                aria-describedby="owner-count"
                 maxLength={specFieldLimits.owner}
                 onChange={(event) => onChange({ ...form, owner: event.target.value })}
                 placeholder="Frontend, Backend, Platform"
                 value={form.owner}
               />
+              <span className="form-count" id="owner-count">{form.owner.length} / {specFieldLimits.owner} characters</span>
             </label>
 
             <label className="form-group">
@@ -115,16 +121,21 @@ export function SpecForm({ form, formError, onChange, onClose, onSubmit }: SpecF
           <label className="form-group">
             Requirement
             <textarea
+              aria-label="Requirement"
+              aria-describedby="requirement-count"
               maxLength={specFieldLimits.requirement}
               onChange={(event) => onChange({ ...form, requirement: event.target.value })}
               placeholder="What user or business need does this solve?"
               value={form.requirement}
             />
+            <span className="form-count" id="requirement-count">{form.requirement.length} / {specFieldLimits.requirement} characters</span>
           </label>
 
           <label className="form-group">
             Acceptance criterion
             <textarea
+              aria-label="Acceptance criterion"
+              aria-describedby="criterion-count"
               maxLength={specFieldLimits.criterion}
               onChange={(event) =>
                 onChange({ ...form, acceptanceCriteria: [event.target.value] })
@@ -132,6 +143,7 @@ export function SpecForm({ form, formError, onChange, onClose, onSubmit }: SpecF
               placeholder="What must be true before this ships?"
               value={form.acceptanceCriteria[0]}
             />
+            <span className="form-count" id="criterion-count">{form.acceptanceCriteria[0].length} / {specFieldLimits.criterion} characters</span>
           </label>
 
           {formError && (

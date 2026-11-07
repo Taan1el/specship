@@ -149,6 +149,14 @@ describe('SpecShip dashboard', () => {
     const title = screen.getByLabelText('Title') as HTMLInputElement
     await user.type(title, 'a'.repeat(201))
     expect(title.value).toHaveLength(200)
+    expect(screen.getByText('200 / 200 characters')).toBeInTheDocument()
+
+    const owner = screen.getByLabelText('Owner') as HTMLInputElement
+    await user.click(owner)
+    await user.paste('b'.repeat(120))
+    expect(owner.value).toHaveLength(100)
+    expect(screen.getByText('100 / 100 characters')).toBeInTheDocument()
+    expect(owner).toHaveAccessibleDescription('100 / 100 characters')
   })
 
   it('shows the server validation error instead of faking a saved spec', async () => {
