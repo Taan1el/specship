@@ -1,4 +1,4 @@
-import { cleanup, render, screen, within } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { seedSpecs, type ProductSpec, type SpecStatus } from '../shared/spec'
@@ -157,6 +157,20 @@ describe('SpecShip dashboard', () => {
     expect(owner.value).toHaveLength(100)
     expect(screen.getByText('100 / 100 characters')).toBeInTheDocument()
     expect(owner).toHaveAccessibleDescription('100 / 100 characters')
+  })
+
+  it('announces remaining space only near a field limit', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    await user.click(screen.getByRole('button', { name: 'New spec' }))
+
+    const owner = screen.getByLabelText('Owner')
+    fireEvent.change(owner, { target: { value: 'a'.repeat(79) } })
+    expect(screen.queryByText('21 characters remaining')).not.toBeInTheDocument()
+    fireEvent.change(owner, { target: { value: 'a'.repeat(80) } })
+    expect(screen.getByText('20 characters remaining')).toHaveAttribute('aria-live', 'polite')
+    fireEvent.change(owner, { target: { value: 'a'.repeat(100) } })
+    expect(screen.getByText('0 characters remaining')).toBeInTheDocument()
   })
 
   it('shows the server validation error instead of faking a saved spec', async () => {

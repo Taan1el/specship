@@ -17,6 +17,18 @@ const priorities: SpecPriority[] = ['High', 'Medium', 'Low']
 const focusableSelector =
   'button:not([disabled]), input, select, textarea, a[href], [tabindex]:not([tabindex="-1"])'
 
+function FieldCount({ id, length, limit }: { id: string; length: number; limit: number }) {
+  const remaining = limit - length
+  return (
+    <>
+      <span className="form-count" id={id}>{length} / {limit} characters</span>
+      <span aria-atomic="true" aria-live="polite" className="visually-hidden">
+        {remaining <= 20 ? `${remaining} characters remaining` : ''}
+      </span>
+    </>
+  )
+}
+
 export function SpecForm({ form, formError, onChange, onClose, onSubmit }: SpecFormProps) {
   const dialogRef = useRef<HTMLDivElement>(null)
   const titleRef = useRef<HTMLInputElement>(null)
@@ -86,7 +98,7 @@ export function SpecForm({ form, formError, onChange, onClose, onSubmit }: SpecF
               ref={titleRef}
               value={form.title}
             />
-            <span className="form-count" id="title-count">{form.title.length} / {specFieldLimits.title} characters</span>
+            <FieldCount id="title-count" length={form.title.length} limit={specFieldLimits.title} />
           </label>
 
           <div className="form-pair">
@@ -100,7 +112,7 @@ export function SpecForm({ form, formError, onChange, onClose, onSubmit }: SpecF
                 placeholder="Frontend, Backend, Platform"
                 value={form.owner}
               />
-              <span className="form-count" id="owner-count">{form.owner.length} / {specFieldLimits.owner} characters</span>
+              <FieldCount id="owner-count" length={form.owner.length} limit={specFieldLimits.owner} />
             </label>
 
             <label className="form-group">
@@ -128,7 +140,7 @@ export function SpecForm({ form, formError, onChange, onClose, onSubmit }: SpecF
               placeholder="What user or business need does this solve?"
               value={form.requirement}
             />
-            <span className="form-count" id="requirement-count">{form.requirement.length} / {specFieldLimits.requirement} characters</span>
+            <FieldCount id="requirement-count" length={form.requirement.length} limit={specFieldLimits.requirement} />
           </label>
 
           <label className="form-group">
@@ -143,7 +155,7 @@ export function SpecForm({ form, formError, onChange, onClose, onSubmit }: SpecF
               placeholder="What must be true before this ships?"
               value={form.acceptanceCriteria[0]}
             />
-            <span className="form-count" id="criterion-count">{form.acceptanceCriteria[0].length} / {specFieldLimits.criterion} characters</span>
+            <FieldCount id="criterion-count" length={form.acceptanceCriteria[0].length} limit={specFieldLimits.criterion} />
           </label>
 
           {formError && (
