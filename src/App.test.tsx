@@ -204,9 +204,22 @@ describe('SpecShip dashboard', () => {
     await user.click(screen.getByRole('button', { name: 'Create spec' }))
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Owner is too short')
+    expect(screen.getByLabelText('Owner')).toHaveFocus()
     expect(
       screen.queryByRole('heading', { name: 'Mobile release notes' }),
     ).not.toBeInTheDocument()
+  })
+
+  it('focuses the first missing field after an invalid submission', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    await user.click(screen.getByRole('button', { name: 'New spec' }))
+    await user.click(screen.getByRole('button', { name: 'Create spec' }))
+    expect(screen.getByLabelText('Title')).toHaveFocus()
+    await user.type(screen.getByLabelText('Title'), 'Release notes')
+    await user.click(screen.getByRole('button', { name: 'Create spec' }))
+    expect(screen.getByLabelText('Owner')).toHaveFocus()
+    expect(fetchMock).not.toHaveBeenCalledWith('/api/specs', expect.objectContaining({ method: 'POST' }))
   })
 
   it('keeps working locally when the create request cannot reach the API', async () => {

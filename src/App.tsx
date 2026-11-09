@@ -69,6 +69,12 @@ function App() {
   async function createSpec(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setFormError(null)
+    const formElement = event.currentTarget
+    const focusField = (field: string) => {
+      const name = field === 'acceptanceCriteria' ? 'criterion' : field
+      if (!['title', 'owner', 'requirement', 'criterion'].includes(name)) return
+      formElement.querySelector<HTMLElement>(`[name="${name}"]`)?.focus()
+    }
 
     const input: CreateSpecInput = {
       ...form,
@@ -77,6 +83,7 @@ function App() {
 
     if (!input.title || !input.owner || !input.requirement || input.acceptanceCriteria.length === 0) {
       setFormError('Fill in a title, owner, requirement, and at least one acceptance criterion.')
+      focusField(!input.title ? 'title' : !input.owner ? 'owner' : !input.requirement ? 'requirement' : 'criterion')
       return
     }
 
@@ -93,6 +100,8 @@ function App() {
         // The request reached the API and it rejected the input. Show the
         // real reason instead of pretending the spec was created.
         setFormError(error.issues?.[0]?.message ?? error.message)
+        const field = error.issues?.[0]?.path[0]
+        if (typeof field === 'string') focusField(field)
         return
       }
 

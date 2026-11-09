@@ -92,6 +92,7 @@ export function SpecForm({ form, formError, onChange, onClose, onSubmit }: SpecF
             <input
               aria-label="Title"
               aria-describedby="title-count"
+              name="title"
               maxLength={specFieldLimits.title}
               onChange={(event) => onChange({ ...form, title: event.target.value })}
               placeholder="Feature name"
@@ -107,6 +108,7 @@ export function SpecForm({ form, formError, onChange, onClose, onSubmit }: SpecF
               <input
                 aria-label="Owner"
                 aria-describedby="owner-count"
+                name="owner"
                 maxLength={specFieldLimits.owner}
                 onChange={(event) => onChange({ ...form, owner: event.target.value })}
                 placeholder="Frontend, Backend, Platform"
@@ -135,6 +137,7 @@ export function SpecForm({ form, formError, onChange, onClose, onSubmit }: SpecF
             <textarea
               aria-label="Requirement"
               aria-describedby="requirement-count"
+              name="requirement"
               maxLength={specFieldLimits.requirement}
               onChange={(event) => onChange({ ...form, requirement: event.target.value })}
               placeholder="What user or business need does this solve?"
@@ -148,6 +151,7 @@ export function SpecForm({ form, formError, onChange, onClose, onSubmit }: SpecF
             <textarea
               aria-label="Acceptance criterion"
               aria-describedby="criterion-count"
+              name="criterion"
               maxLength={specFieldLimits.criterion}
               onChange={(event) =>
                 onChange({ ...form, acceptanceCriteria: [event.target.value] })
