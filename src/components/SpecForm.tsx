@@ -7,6 +7,7 @@ import { specFieldLimits } from '../../shared/validation'
 type SpecFormProps = {
   form: CreateSpecInput
   formError: string | null
+  focusFormError: boolean
   onChange: (form: CreateSpecInput) => void
   onClose: () => void
   onSubmit: (event: FormEvent<HTMLFormElement>) => void
@@ -29,9 +30,14 @@ function FieldCount({ id, length, limit }: { id: string; length: number; limit: 
   )
 }
 
-export function SpecForm({ form, formError, onChange, onClose, onSubmit }: SpecFormProps) {
+export function SpecForm({ form, formError, focusFormError, onChange, onClose, onSubmit }: SpecFormProps) {
   const dialogRef = useRef<HTMLDivElement>(null)
   const titleRef = useRef<HTMLInputElement>(null)
+  const errorRef = useRef<HTMLParagraphElement>(null)
+
+  useEffect(() => {
+    if (formError && focusFormError) errorRef.current?.focus()
+  }, [formError, focusFormError])
 
   // Move focus into the dialog on open and give it back to the opener on close.
   useEffect(() => {
@@ -163,7 +169,7 @@ export function SpecForm({ form, formError, onChange, onClose, onSubmit }: SpecF
           </label>
 
           {formError && (
-            <p className="form-error" role="alert">
+            <p className="form-error" ref={errorRef} role="alert" tabIndex={-1}>
               {formError}
             </p>
           )}

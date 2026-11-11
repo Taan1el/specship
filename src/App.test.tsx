@@ -222,6 +222,26 @@ describe('SpecShip dashboard', () => {
     expect(fetchMock).not.toHaveBeenCalledWith('/api/specs', expect.objectContaining({ method: 'POST' }))
   })
 
+  it('focuses the error when the API rejection has no field issue', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    await openSpec('Spec intake dashboard')
+    fetchMock.mockImplementationOnce(async () =>
+      jsonResponse({ code: 'SPEC_CONFLICT', error: 'A spec with this title already exists' }, 409),
+    )
+
+    await user.click(screen.getByRole('button', { name: 'New spec' }))
+    await user.type(screen.getByLabelText('Title'), 'Mobile release notes')
+    await user.type(screen.getByLabelText('Owner'), 'Platform')
+    await user.type(screen.getByLabelText('Requirement'), 'Summarize release changes.')
+    await user.type(screen.getByLabelText('Acceptance criterion'), 'Show the summary.')
+    await user.click(screen.getByRole('button', { name: 'Create spec' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('A spec with this title already exists')
+    expect(screen.getByRole('alert')).toHaveFocus()
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
+  })
+
   it('keeps working locally when the create request cannot reach the API', async () => {
     const user = userEvent.setup()
 
