@@ -205,6 +205,8 @@ describe('SpecShip dashboard', () => {
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Owner is too short')
     expect(screen.getByLabelText('Owner')).toHaveFocus()
+    expect(screen.getByLabelText('Owner')).toHaveAttribute('aria-invalid', 'true')
+    expect(screen.getByLabelText('Owner')).toHaveAttribute('aria-describedby', 'owner-count form-error')
     expect(
       screen.queryByRole('heading', { name: 'Mobile release notes' }),
     ).not.toBeInTheDocument()
@@ -216,9 +218,12 @@ describe('SpecShip dashboard', () => {
     await user.click(screen.getByRole('button', { name: 'New spec' }))
     await user.click(screen.getByRole('button', { name: 'Create spec' }))
     expect(screen.getByLabelText('Title')).toHaveFocus()
+    expect(screen.getByLabelText('Title')).toHaveAttribute('aria-invalid', 'true')
+    expect(screen.getByLabelText('Title')).toHaveAttribute('aria-describedby', 'title-count form-error')
     await user.type(screen.getByLabelText('Title'), 'Release notes')
     await user.click(screen.getByRole('button', { name: 'Create spec' }))
     expect(screen.getByLabelText('Owner')).toHaveFocus()
+    expect(screen.getByLabelText('Owner')).toHaveAttribute('aria-invalid', 'true')
     expect(fetchMock).not.toHaveBeenCalledWith('/api/specs', expect.objectContaining({ method: 'POST' }))
   })
 

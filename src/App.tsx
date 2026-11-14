@@ -34,6 +34,7 @@ function App() {
   const [form, setForm] = useState<CreateSpecInput>(emptyForm)
   const [formError, setFormError] = useState<string | null>(null)
   const [focusFormError, setFocusFormError] = useState(false)
+  const [errorField, setErrorField] = useState<string | null>(null)
   const [listError, setListError] = useState<string | null>(null)
   const [apiState, setApiState] = useState<'Loading' | 'Ready' | 'Offline'>(
     'Loading',
@@ -66,11 +67,13 @@ function App() {
     setDialogOpen(false)
     setFormError(null)
     setFocusFormError(false)
+    setErrorField(null)
   }
 
   async function createSpec(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setFormError(null)
+    setErrorField(null)
     const formElement = event.currentTarget
     const focusField = (field: string) => {
       const name = field === 'acceptanceCriteria' ? 'criterion' : field
@@ -88,7 +91,9 @@ function App() {
     if (!input.title || !input.owner || !input.requirement || input.acceptanceCriteria.length === 0) {
       setFormError('Fill in a title, owner, requirement, and at least one acceptance criterion.')
       setFocusFormError(false)
-      focusField(!input.title ? 'title' : !input.owner ? 'owner' : !input.requirement ? 'requirement' : 'criterion')
+      const field = !input.title ? 'title' : !input.owner ? 'owner' : !input.requirement ? 'requirement' : 'criterion'
+      setErrorField(field)
+      focusField(field)
       return
     }
 
@@ -106,7 +111,10 @@ function App() {
         // real reason instead of pretending the spec was created.
         setFormError(error.issues?.[0]?.message ?? error.message)
         const field = error.issues?.[0]?.path[0]
-        setFocusFormError(typeof field !== 'string' || !focusField(field))
+        const name = field === 'acceptanceCriteria' ? 'criterion' : field
+        const validField = typeof name === 'string' && ['title', 'owner', 'requirement', 'criterion'].includes(name)
+        setErrorField(validField ? name : null)
+        setFocusFormError(!validField || !focusField(name))
         return
       }
 
@@ -202,9 +210,13 @@ function App() {
       {dialogOpen && (
         <SpecForm
           focusFormError={focusFormError}
+          errorField={errorField}
           form={form}
           formError={formError}
-          onChange={setForm}
+          onChange={(nextForm) => {
+            setForm(nextForm)
+            setErrorField(null)
+          }}
           onClose={closeDialog}
           onSubmit={createSpec}
         />

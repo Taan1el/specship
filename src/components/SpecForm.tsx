@@ -8,6 +8,7 @@ type SpecFormProps = {
   form: CreateSpecInput
   formError: string | null
   focusFormError: boolean
+  errorField: string | null
   onChange: (form: CreateSpecInput) => void
   onClose: () => void
   onSubmit: (event: FormEvent<HTMLFormElement>) => void
@@ -30,7 +31,7 @@ function FieldCount({ id, length, limit }: { id: string; length: number; limit: 
   )
 }
 
-export function SpecForm({ form, formError, focusFormError, onChange, onClose, onSubmit }: SpecFormProps) {
+export function SpecForm({ form, formError, focusFormError, errorField, onChange, onClose, onSubmit }: SpecFormProps) {
   const dialogRef = useRef<HTMLDivElement>(null)
   const titleRef = useRef<HTMLInputElement>(null)
   const errorRef = useRef<HTMLParagraphElement>(null)
@@ -97,7 +98,8 @@ export function SpecForm({ form, formError, focusFormError, onChange, onClose, o
             Title
             <input
               aria-label="Title"
-              aria-describedby="title-count"
+              aria-describedby={errorField === 'title' ? 'title-count form-error' : 'title-count'}
+              aria-invalid={errorField === 'title' || undefined}
               name="title"
               maxLength={specFieldLimits.title}
               onChange={(event) => onChange({ ...form, title: event.target.value })}
@@ -113,7 +115,8 @@ export function SpecForm({ form, formError, focusFormError, onChange, onClose, o
               Owner
               <input
                 aria-label="Owner"
-                aria-describedby="owner-count"
+                aria-describedby={errorField === 'owner' ? 'owner-count form-error' : 'owner-count'}
+                aria-invalid={errorField === 'owner' || undefined}
                 name="owner"
                 maxLength={specFieldLimits.owner}
                 onChange={(event) => onChange({ ...form, owner: event.target.value })}
@@ -142,7 +145,8 @@ export function SpecForm({ form, formError, focusFormError, onChange, onClose, o
             Requirement
             <textarea
               aria-label="Requirement"
-              aria-describedby="requirement-count"
+              aria-describedby={errorField === 'requirement' ? 'requirement-count form-error' : 'requirement-count'}
+              aria-invalid={errorField === 'requirement' || undefined}
               name="requirement"
               maxLength={specFieldLimits.requirement}
               onChange={(event) => onChange({ ...form, requirement: event.target.value })}
@@ -156,7 +160,8 @@ export function SpecForm({ form, formError, focusFormError, onChange, onClose, o
             Acceptance criterion
             <textarea
               aria-label="Acceptance criterion"
-              aria-describedby="criterion-count"
+              aria-describedby={errorField === 'criterion' ? 'criterion-count form-error' : 'criterion-count'}
+              aria-invalid={errorField === 'criterion' || undefined}
               name="criterion"
               maxLength={specFieldLimits.criterion}
               onChange={(event) =>
@@ -169,7 +174,7 @@ export function SpecForm({ form, formError, focusFormError, onChange, onClose, o
           </label>
 
           {formError && (
-            <p className="form-error" ref={errorRef} role="alert" tabIndex={-1}>
+            <p className="form-error" id="form-error" ref={errorRef} role="alert" tabIndex={-1}>
               {formError}
             </p>
           )}
