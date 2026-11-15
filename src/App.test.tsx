@@ -136,6 +136,30 @@ describe('SpecShip dashboard', () => {
     )
   })
 
+  it('rejects whitespace-only criteria and trims submitted fields', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    await user.click(screen.getByRole('button', { name: 'New spec' }))
+    fireEvent.change(screen.getByLabelText('Title'), { target: { value: '  Release notes  ' } })
+    fireEvent.change(screen.getByLabelText('Owner'), { target: { value: '  Platform  ' } })
+    fireEvent.change(screen.getByLabelText('Requirement'), { target: { value: '  Show updates  ' } })
+    fireEvent.change(screen.getByLabelText('Acceptance criterion'), { target: { value: '   ' } })
+    await user.click(screen.getByRole('button', { name: 'Create spec' }))
+
+    expect(screen.getByLabelText('Acceptance criterion')).toHaveFocus()
+    expect(screen.getByLabelText('Acceptance criterion')).toHaveAttribute('aria-invalid', 'true')
+    expect(fetchMock).not.toHaveBeenCalledWith('/api/specs', expect.objectContaining({ method: 'POST' }))
+
+    fireEvent.change(screen.getByLabelText('Acceptance criterion'), { target: { value: '  Show rollback steps  ' } })
+    await user.click(screen.getByRole('button', { name: 'Create spec' }))
+    expect(await screen.findByRole('heading', { name: 'Release notes' })).toBeInTheDocument()
+    const post = fetchMock.mock.calls.find(([url, init]) => url === '/api/specs' && init?.method === 'POST')
+    expect(JSON.parse(post?.[1]?.body as string)).toMatchObject({
+      title: 'Release notes', owner: 'Platform', requirement: 'Show updates',
+      acceptanceCriteria: ['Show rollback steps'],
+    })
+  })
+
   it('keeps intake fields within the API length limits', async () => {
     const user = userEvent.setup()
     render(<App />)

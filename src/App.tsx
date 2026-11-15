@@ -85,7 +85,10 @@ function App() {
 
     const input: CreateSpecInput = {
       ...form,
-      acceptanceCriteria: form.acceptanceCriteria.filter(Boolean),
+      title: form.title.trim(),
+      owner: form.owner.trim(),
+      requirement: form.requirement.trim(),
+      acceptanceCriteria: form.acceptanceCriteria.map((criterion) => criterion.trim()).filter(Boolean),
     }
 
     if (!input.title || !input.owner || !input.requirement || input.acceptanceCriteria.length === 0) {
