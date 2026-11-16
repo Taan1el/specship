@@ -7,11 +7,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+- The New spec dialog shows a live character count under each text field, and screen readers hear the remaining space once 20 or fewer characters are left.
 - Added a test that checks every sideways scrolling container is a labelled, keyboard-focusable region in the spec list, document view and New spec dialog.
 - Added automated accessibility checks to the test suite for the spec list with the document view and for the New spec dialog, using axe with the WCAG 2 A and AA rules. Color contrast is checked outside jsdom.
 
 ### Changed
 
+- Spec fields now have upper limits, shared by the API, the browser demo and the form: title 200 characters, owner 100, requirement 5000, and up to 25 acceptance criteria of 500 characters each.
+- Surrounding whitespace is trimmed from every spec field before validation, and blank acceptance criteria are dropped, so a whitespace-only entry is rejected instead of saved.
+- When a submission is rejected, focus moves to the field at fault, which is marked invalid and linked to the error message. Errors without a field move focus to the message itself.
 - Gave SpecShip its own look as a spec reader: a cream page with dusk blue accents, Newsreader for headings and spec text, Figtree for labels and buttons, and DM Mono for dates and counts.
 - Replaced the stats strip and spec table with a list of specs grouped by status on the left and the selected spec shown as a document on the right, with the requirement as prose and the acceptance criteria as a numbered list.
 - Moved spec creation into a New spec dialog that keeps keyboard focus inside while open and returns it when closed.
