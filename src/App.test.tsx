@@ -282,22 +282,23 @@ describe('SpecShip dashboard', () => {
     })
 
     await user.click(screen.getByRole('button', { name: 'New spec' }))
-    await user.type(screen.getByLabelText('Title'), 'Offline release notes')
-    await user.type(screen.getByLabelText('Owner'), 'Platform')
-    await user.type(
-      screen.getByLabelText('Requirement'),
-      'Release managers need a short summary before publishing a feature.',
-    )
-    await user.type(
-      screen.getByLabelText('Acceptance criterion'),
-      'Show publishing status and rollback notes.',
-    )
+    fireEvent.change(screen.getByLabelText('Title'), { target: { value: '  Offline release notes  ' } })
+    fireEvent.change(screen.getByLabelText('Owner'), { target: { value: '  Platform  ' } })
+    fireEvent.change(screen.getByLabelText('Requirement'), {
+      target: { value: '  Summarize release changes.  ' },
+    })
+    fireEvent.change(screen.getByLabelText('Acceptance criterion'), {
+      target: { value: '  Show rollback notes.  ' },
+    })
     await user.click(screen.getByRole('button', { name: 'Create spec' }))
 
     expect(
       await screen.findByRole('heading', { name: 'Offline release notes' }),
     ).toBeInTheDocument()
     expect(await screen.findByText('Offline')).toBeInTheDocument()
+    expect(screen.getByText('Summarize release changes.')).toBeInTheDocument()
+    expect(screen.getByText('Show rollback notes.')).toBeInTheDocument()
+    expect(screen.queryByText(/  Offline release notes  /)).not.toBeInTheDocument()
   })
 
   it('shows an error and keeps the status when the API rejects a move', async () => {
