@@ -46,6 +46,10 @@ async function parseJsonOrThrow<T>(response: Response): Promise<T> {
     )
   }
 
+  if (body === null) {
+    throw new ApiError({ code: 'INVALID_RESPONSE', error: 'The API returned an unreadable response' })
+  }
+
   return body as T
 }
 

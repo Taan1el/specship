@@ -301,6 +301,26 @@ describe('SpecShip dashboard', () => {
     expect(screen.queryByText(/  Offline release notes  /)).not.toBeInTheDocument()
   })
 
+  it('keeps the form open when a successful create response is unreadable', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    await openSpec('Spec intake dashboard')
+    fetchMock.mockImplementationOnce(async () => ({
+      ok: true, status: 201, json: async () => { throw new SyntaxError('Invalid JSON') },
+    } as unknown as Response))
+
+    await user.click(screen.getByRole('button', { name: 'New spec' }))
+    fireEvent.change(screen.getByLabelText('Title'), { target: { value: 'Release notes' } })
+    fireEvent.change(screen.getByLabelText('Owner'), { target: { value: 'Platform' } })
+    fireEvent.change(screen.getByLabelText('Requirement'), { target: { value: 'Summarize changes' } })
+    fireEvent.change(screen.getByLabelText('Acceptance criterion'), { target: { value: 'Show status' } })
+    await user.click(screen.getByRole('button', { name: 'Create spec' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('unreadable response')
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Release notes' })).not.toBeInTheDocument()
+  })
+
   it('shows an error and keeps the status when the API rejects a move', async () => {
     const user = userEvent.setup()
 
@@ -340,6 +360,19 @@ describe('SpecShip dashboard', () => {
     expect(
       await screen.findByRole('button', { name: 'Move Spec intake dashboard from Review' }),
     ).toBeInTheDocument()
+  })
+
+  it('keeps the current status when a successful move response is unreadable', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    await openSpec('Spec intake dashboard')
+    fetchMock.mockImplementationOnce(async () => ({
+      ok: true, status: 200, json: async () => { throw new SyntaxError('Invalid JSON') },
+    } as unknown as Response))
+
+    await user.click(screen.getByRole('button', { name: 'Move Spec intake dashboard from In progress' }))
+    expect(await screen.findByRole('alert')).toHaveTextContent('unreadable response')
+    expect(screen.getByRole('button', { name: 'Move Spec intake dashboard from In progress' })).toBeInTheDocument()
   })
 
   it('shows the first spec as a document and opens another from the list', async () => {

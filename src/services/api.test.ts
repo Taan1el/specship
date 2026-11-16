@@ -68,6 +68,16 @@ describe('live api client', () => {
     await expect(listSpecs()).rejects.toMatchObject({ code: 'UNKNOWN_ERROR' })
   })
 
+  it('rejects an unreadable successful response', async () => {
+    fetchMock.mockResolvedValue({
+      ok: true,
+      status: 201,
+      json: async () => { throw new SyntaxError('Unexpected token') },
+    } as unknown as Response)
+
+    await expect(listSpecs()).rejects.toMatchObject({ code: 'INVALID_RESPONSE' })
+  })
+
   it('propagates network failures instead of wrapping them in an ApiError', async () => {
     fetchMock.mockRejectedValue(new TypeError('Failed to fetch'))
 

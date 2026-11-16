@@ -9,7 +9,7 @@ export function SyncStatus({ state }: SyncStatusProps) {
       <span className="label">Sync</span>
       <span className="sync-value">{state}</span>
       {state === 'Offline' && (
-        <span className="sync-note">Changes are saved in this browser until the API responds.</span>
+        <span className="sync-note">Changes remain on this page until you refresh it.</span>
       )}
     </div>
   )
