@@ -29,19 +29,26 @@ export function Dialog({ title, onClose, children, wide }: DialogProps) {
       dialog?.querySelector<HTMLElement>('[data-autofocus]') ??
       dialog?.querySelector<HTMLElement>('input, textarea, select') ??
       dialog?.querySelector<HTMLElement>('button')
-    target?.focus()
+    // A disabled control cannot take focus; the dialog itself can, so Tab and Escape still work from inside it.
+    ;(target ?? dialog)?.focus()
+    if (document.activeElement !== (target ?? dialog)) dialog?.focus()
     return () => {
       if (opener?.isConnected) opener.focus()
     }
   }, [])
 
-  function handleKeyDown(event: KeyboardEvent<HTMLDivElement>) {
-    if (event.key === 'Escape') {
-      event.stopPropagation()
-      onClose()
-      return
+  // Escape closes the dialog wherever focus is, including on the page behind it.
+  const closeRef = useRef(onClose)
+  closeRef.current = onClose
+  useEffect(() => {
+    const onEscape = (event: globalThis.KeyboardEvent) => {
+      if (event.key === 'Escape') closeRef.current()
     }
+    document.addEventListener('keydown', onEscape)
+    return () => document.removeEventListener('keydown', onEscape)
+  }, [])
 
+  function handleKeyDown(event: KeyboardEvent<HTMLDivElement>) {
     if (event.key !== 'Tab' || !dialogRef.current) {
       return
     }
@@ -70,6 +77,7 @@ export function Dialog({ title, onClose, children, wide }: DialogProps) {
         onKeyDown={handleKeyDown}
         ref={dialogRef}
         role="dialog"
+        tabIndex={-1}
       >
         <div className="dialog-head">
           <h2 className="dialog-title" id={titleId}>

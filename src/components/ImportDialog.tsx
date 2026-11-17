@@ -246,6 +246,7 @@ export function ImportDialog({ savedSpecs, mode, initialFiles, onImport, onClose
           <div className="dialog-actions">
             <button
               className="btn btn-secondary"
+              data-autofocus={writes === 0 ? true : undefined}
               onClick={() => {
                 setPreview(null)
                 setError(null)
@@ -254,7 +255,7 @@ export function ImportDialog({ savedSpecs, mode, initialFiles, onImport, onClose
             >
               Choose other files
             </button>
-            <button className="btn btn-primary" data-autofocus disabled={writes === 0 || importing} onClick={() => void confirm()} type="button">
+            <button className="btn btn-primary" data-autofocus={writes > 0 ? true : undefined} disabled={writes === 0 || importing} onClick={() => void confirm()} type="button">
               {writes === 0 ? 'Nothing to import' : `Import ${formatCount(writes, 'spec')}`}
             </button>
           </div>

@@ -342,6 +342,19 @@ describe('importing Markdown', () => {
     expect(await within(dialog).findByText(/These specs go into sample data/)).toBeInTheDocument()
   })
 
+  it('keeps focus inside when there is nothing to import, and Escape still closes the dialog', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    const dialog = await openImport()
+    await user.upload(within(dialog).getByLabelText('Markdown files'), incoming[4])
+
+    expect(await within(dialog).findByRole('button', { name: 'Nothing to import' })).toBeDisabled()
+    expect(within(dialog).getByRole('button', { name: 'Choose other files' })).toHaveFocus()
+    await user.keyboard('{Escape}')
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Import Markdown' })).toHaveFocus()
+  })
+
   it('reads files over the size limit as a problem instead of loading them', async () => {
     render(<App />)
     const dialog = await openImport()
