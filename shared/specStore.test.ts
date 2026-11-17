@@ -83,3 +83,62 @@ describe('createMemorySpecStore', () => {
     await expect(store.updateStatus('missing-id', 'Review')).resolves.toBeNull()
   })
 })
+
+describe('local store editing', () => {
+  const input = {
+    acceptanceCriteria: ['First criterion', 'Second criterion'],
+    owner: 'Frontend',
+    priority: 'High' as const,
+    requirement: 'The team needs to see a complete delivery checklist.',
+    title: 'Delivery checklist',
+  }
+
+  it('updates fields, stamps the time and keeps the ticked list as long as the criteria', async () => {
+    vi.useFakeTimers()
+
+    try {
+      const store = createMemorySpecStore([])
+      const created = await store.create(input)
+
+      vi.advanceTimersByTime(1000)
+      const updated = await store.update(created.id, {
+        acceptanceCriteria: ['Only criterion'],
+        criteriaDone: [true, true, true],
+        title: 'Renamed checklist',
+      })
+
+      expect(updated).toMatchObject({ id: created.id, title: 'Renamed checklist', criteriaDone: [true], status: 'Backlog' })
+      expect(updated?.updatedAt).not.toBe(created.updatedAt)
+      await expect(store.list()).resolves.toEqual([updated])
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('returns null when updating an unknown id', async () => {
+    const store = createMemorySpecStore([])
+    await expect(store.update('missing', { title: 'Nope nope' })).resolves.toBeNull()
+  })
+
+  it('removes one spec and reports whether it existed', async () => {
+    const store = createMemorySpecStore([])
+    const first = await store.create(input)
+    const second = await store.create({ ...input, title: 'Second spec' })
+
+    await expect(store.remove(first.id)).resolves.toBe(true)
+    await expect(store.remove(first.id)).resolves.toBe(false)
+    await expect(store.list()).resolves.toEqual([second])
+  })
+
+  it('replaces specs with the same id, puts new ones first and keeps the given update time', async () => {
+    const store = createMemorySpecStore(seedSpecs)
+    const edited = { ...seedSpecs[1], title: 'Edited in a file', updatedAt: '2026-01-01T00:00:00.000Z' }
+    const added = { ...seedSpecs[0], id: 'brand-new' }
+
+    await store.upsertMany([edited, added])
+
+    const specs = await store.list()
+    expect(specs.map((spec) => spec.id)).toEqual(['brand-new', seedSpecs[0].id, seedSpecs[1].id, seedSpecs[2].id])
+    expect(specs[2]).toEqual(edited)
+  })
+})

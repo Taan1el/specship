@@ -10,6 +10,14 @@ export type ProductSpec = {
   priority: SpecPriority
   requirement: string
   acceptanceCriteria: string[]
+  /**
+   * Which acceptance criteria are ticked, in the same order as
+   * `acceptanceCriteria`. Optional so specs from the API and older saved data
+   * stay valid; a missing or short list reads as "not ticked".
+   */
+  criteriaDone?: boolean[]
+  /** Front matter fields from an imported Markdown file that SpecShip does not use. Kept so they survive export. */
+  extra?: Record<string, string>
   updatedAt: string
 }
 
@@ -27,6 +35,15 @@ export const statusOrder: SpecStatus[] = [
   'Review',
   'Shipped',
 ]
+
+/** Ticked state for every criterion, always as long as the criteria list. */
+export function criteriaState(spec: Pick<ProductSpec, 'acceptanceCriteria' | 'criteriaDone'>): boolean[] {
+  return spec.acceptanceCriteria.map((_, index) => spec.criteriaDone?.[index] === true)
+}
+
+export function nextStatus(status: SpecStatus): SpecStatus {
+  return statusOrder[(statusOrder.indexOf(status) + 1) % statusOrder.length]
+}
 
 export const seedSpecs: ProductSpec[] = [
   {
