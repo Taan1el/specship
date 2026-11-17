@@ -1,7 +1,7 @@
 {
   "name": "specship",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Product spec tracker that follows a feature from requirement to shipped, with a browser-only demo mode.",
   "license": "MIT",
   "repository": {
