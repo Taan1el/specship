@@ -15,6 +15,15 @@ export const listSpecs = impl.listSpecs
 export const createSpec = impl.createSpec
 export const updateSpecStatus = impl.updateSpecStatus
 
+/**
+ * Editing, deleting and importing specs. Only the browser client can do these:
+ * the Express API has no such routes, so in API mode this is undefined and the
+ * screens that need it are not shown.
+ */
+export const localApi = isDemoMode
+  ? { updateSpec: demoApi.updateSpec, deleteSpec: demoApi.deleteSpec, importSpecs: demoApi.importSpecs }
+  : undefined
+
 /** Only available in demo mode. Clears saved demo data back to the seed specs. */
 export const resetDemoData = isDemoMode ? demoApi.resetDemoData : undefined
 
