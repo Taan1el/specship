@@ -29,7 +29,7 @@ export function SpecBoard({
 
   return (
     <nav aria-label="Specs" className="spec-index">
-      <h2 className="index-heading">Specs by delivery status</h2>
+      <h2 className="index-heading" id="spec-index-heading" tabIndex={-1}>Specs by delivery status</h2>
       <p className="index-count">{formatCount(visibleCount, 'spec')} in view</p>
 
       <div className="filter-row" aria-label="Filter specs by status">

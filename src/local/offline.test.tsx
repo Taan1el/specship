@@ -7,7 +7,8 @@ import { axe } from '../test/axe';
 
 class FakeWorker extends EventTarget {
   postMessage = vi.fn();
-  constructor(public state: ServiceWorkerState) { super(); }
+  state: ServiceWorkerState;
+  constructor(state: ServiceWorkerState) { super(); this.state = state; }
   become(state: ServiceWorkerState) { this.state = state; this.dispatchEvent(new Event('statechange')); }
 }
 class FakeRegistration extends EventTarget {

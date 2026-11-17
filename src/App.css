@@ -537,3 +537,381 @@ ol.criteria-list {
     padding-block: 32px 40px;
   }
 }
+
+/* Spec files: data source, import and export */
+.local-bar {
+  padding-block: 12px 4px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.local-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 24px;
+}
+
+.mode-toggle {
+  display: flex;
+  flex-wrap: wrap;
+  margin-left: -8px;
+}
+
+.local-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.local-note {
+  max-width: 80ch;
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+.local-message {
+  max-width: 80ch;
+  margin-top: 8px;
+  padding-left: 12px;
+  border-left: 2px solid var(--rule-strong);
+  font-size: 14px;
+  color: var(--ink-2);
+}
+
+.local-message:empty {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.local-problem {
+  border-left-color: var(--bad);
+  color: var(--bad);
+}
+
+.local-message .link-btn {
+  min-height: 44px;
+}
+
+/* Acceptance criteria as a checklist */
+.criteria-progress {
+  margin-top: 4px;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+.criterion {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-height: 44px;
+  cursor: pointer;
+}
+
+.criterion input {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin-top: 0.4em;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.suggestion {
+  margin-top: 24px;
+}
+
+.suggestion:empty {
+  margin: 0;
+}
+
+.suggestion p {
+  padding-left: 12px;
+  border-left: 2px solid var(--accent);
+  font-size: 15px;
+}
+
+.suggestion .btn {
+  margin-top: 12px;
+}
+
+.doc-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+}
+
+.btn-icon {
+  min-width: 44px;
+  padding: 0;
+}
+
+.btn-danger {
+  background: var(--bad);
+  color: var(--accent-ink);
+}
+
+.btn-danger:hover {
+  background: color-mix(in srgb, var(--bad) 86%, black);
+}
+
+.btn-danger-text {
+  color: var(--bad);
+  margin-left: auto;
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+/* Dialog extras */
+.dialog-wide {
+  max-width: 760px;
+}
+
+.dialog-text {
+  margin-bottom: 16px;
+  font-size: 15px;
+  color: var(--ink-2);
+}
+
+.dialog-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px 12px;
+  margin-top: 24px;
+}
+
+.criteria-editor {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.criteria-editor legend {
+  margin-bottom: 4px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.criterion-row {
+  display: grid;
+  grid-template-columns: 1.5em minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.criterion-row input {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  background: var(--surface);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius);
+  font-size: 15px;
+}
+
+.criterion-number {
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+.drop-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 24px;
+  border: 1px dashed var(--rule-strong);
+  border-radius: var(--radius);
+}
+
+.drop-zone.dragging {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.drop-zone svg {
+  color: var(--accent);
+}
+
+.drop-label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.drop-label input::file-selector-button {
+  min-height: 44px;
+  margin-right: 12px;
+  padding: 0 18px;
+  background: var(--surface);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.drop-hint {
+  font-size: 14px;
+  color: var(--ink-2);
+}
+
+.merge-summary {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.merge-group {
+  margin-top: 24px;
+}
+
+.merge-group .doc-heading {
+  margin-top: 0;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--rule);
+  font-size: 16px;
+}
+
+.merge-list {
+  list-style: none;
+}
+
+.merge-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding-block: 10px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.merge-title {
+  font-family: var(--font-heading);
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.merge-meta {
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+.merge-problem {
+  font-size: 14px;
+  color: var(--bad);
+}
+
+.merge-choice {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.merge-choice input {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--accent);
+}
+
+.print-footer {
+  display: none;
+}
+
+.status-dot {
+  print-color-adjust: exact;
+}
+
+@media (max-width: 720px) {
+  .btn-danger-text {
+    margin-left: 0;
+  }
+}
+
+/* Print: one spec on its own, as a plain document */
+@page {
+  margin: 18mm 16mm;
+}
+
+@media print {
+  body {
+    background: #fff;
+    color: #000;
+    font-size: 11pt;
+    overflow: visible;
+  }
+
+  .demo-bar,
+  .app-header,
+  .local-bar,
+  .reader-list,
+  .doc-actions,
+  .suggestion,
+  .dialog-backdrop {
+    display: none !important;
+  }
+
+  .app-shell {
+    min-height: 0;
+  }
+
+  .page,
+  .reader {
+    display: block;
+    max-width: none;
+    padding: 0;
+  }
+
+  .document {
+    padding: 0;
+    background: #fff;
+    border: 0;
+  }
+
+  .doc-title {
+    margin-top: 20pt;
+    font-size: 26pt;
+    break-after: avoid;
+  }
+
+  .doc-heading {
+    margin-top: 24pt;
+    break-after: avoid;
+  }
+
+  .doc-prose,
+  ol.criteria-list {
+    font-size: 12pt;
+  }
+
+  .criteria-list li {
+    break-inside: avoid;
+  }
+
+  .criterion input {
+    print-color-adjust: exact;
+  }
+
+  .print-footer {
+    display: block;
+    margin-top: 32pt;
+    padding-top: 8pt;
+    border-top: 1px solid var(--rule-strong);
+    font-family: var(--font-mono);
+    font-size: 9pt;
+    color: var(--ink-2);
+  }
+}

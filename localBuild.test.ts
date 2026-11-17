@@ -15,7 +15,9 @@ let worker: string;
 let files: string[];
 
 class FakeRequest {
-  constructor(public url: string, public init?: Record<string, unknown>) {}
+  url: string;
+  init?: Record<string, unknown>;
+  constructor(url: string, init?: Record<string, unknown>) { this.url = url; this.init = init; }
 }
 
 /** Runs the generated worker against fake caches and a fake network, returning what it registered. */
