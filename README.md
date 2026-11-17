@@ -10,8 +10,10 @@ owner, priority, and delivery status.
 
 **Live demo:** https://taan1el.github.io/specship/
 
-The demo runs entirely in your browser: no backend, sample data seeded on
-load, and a "Reset sample data" control if you want to start over.
+The demo runs entirely in your browser: no backend, no account and no API
+key. It opens on sample data (with a "Reset sample data" control), and a
+second data source, "Your workspace", keeps your own specs as Markdown files
+in this browser. See [Use it with your own data](#use-it-with-your-own-data).
 
 ## Screenshot
 
@@ -29,9 +31,77 @@ More in [docs/screenshots](docs/screenshots), including the New spec dialog and 
 - Create a spec from the New spec dialog; the API validates the input and
   rejects incomplete or too-short fields with a specific message.
 - A one-line tally of specs, shipped specs, and high-priority specs, plus a
-  sync indicator for the connection to the API.
+  sync indicator for the connection to the API (shown when the app runs against the API).
+- Edit and delete specs in the browser build, tick acceptance criteria as
+  checkboxes, and get a suggestion (not a forced move) to advance a spec once
+  every criterion is ticked.
+- Every spec is a Markdown file: import many files at once (or drop them on
+  the page) with a preview of what is new, changed, unchanged or in conflict,
+  and export one spec, a zip of one file per spec, or one combined file.
+- Print or save any spec as a PDF from the browser, with a print layout that
+  shows only the spec.
 - Works two ways from the same code: against the real Express API, or fully
   in the browser in demo mode (see [docs/architecture.md](docs/architecture.md#demo-mode)).
+
+## Use it with your own data
+
+The live demo is a local-first tool: choose **Your workspace** in the bar
+under the header and your specs are saved in this browser (IndexedDB), with
+no server, no account and no API key.
+
+**What to import.** Markdown files, one spec per file, or several specs in one
+combined file. A spec file looks like this:
+
+```markdown
+---
+id: spec-intake-dashboard
+title: Spec intake dashboard
+status: In progress
+priority: High
+owner: Frontend
+updated: 2026-09-10T00:00:00.000Z
+---
+
+Product teams need a clear view of new feature requests before planning
+delivery work.
+
+## Acceptance criteria
+
+- [x] Show incoming feature requests in a scannable layout.
+- [ ] Track owner, priority, and delivery status for each spec.
+```
+
+`id`, `title`, `status` (`Backlog`, `In progress`, `Review` or `Shipped`) and
+`updated` are required. `priority` (`High`, `Medium` or `Low`, default
+`Medium`) and `owner` are optional. The front matter is a strict subset of
+YAML (one `key: value` per line, values plain or in quotes); other keys are
+kept and written back on export. The requirement is the prose before the
+`## Acceptance criteria` heading, and the criteria are a GitHub task list.
+CRLF line endings and a byte order mark are accepted. A file that does not
+follow the format is listed with the line that is wrong.
+
+**What you get.** An import preview that sorts every spec by id into new,
+changed, unchanged, and conflicts where your saved copy is newer (a conflict
+keeps your copy unless you choose to replace it), then a confirmation that
+states the counts. Specs can be edited, deleted and ticked off, and exported
+as one `.md` file, as a zip with one file per spec, or as one combined `.md`
+file that can be imported again. A quiet reminder to download a backup shows
+while you have changes that are not in a file. Use **Print or save PDF** on an
+open spec for a clean print layout.
+
+**What stays on your machine.** Everything. The page makes no requests to
+other hosts (a Content-Security-Policy in the built page allows only its own
+files), keeps your specs in this browser's storage, and works offline after the
+first visit. Clearing site data removes the workspace, so keep a downloaded
+backup.
+
+**What this is not.** SpecShip tracks specs on this device only. It does not
+sync between browsers or connect to an issue tracker, so a spec reaches
+another machine only when you export it and import it there.
+
+Editing, deleting and importing are part of the browser build. The Express API
+keeps its original routes (list, create and move a spec), so those actions are
+not offered when the app runs against the API.
 
 ## Getting started
 
@@ -103,12 +173,14 @@ flowchart LR
     API --> Shared["shared/specStore.ts + shared/validation.ts"]
     Demo --> Shared
     API --> PG[(PostgreSQL, optional)]
-    Demo --> LS[(localStorage)]
+    Demo --> LS[(localStorage: sample data)]
+    Demo --> IDB[(IndexedDB: Your workspace)]
 ```
 
 ```
 specship/
-├── src/            React UI, and the API/demo client in src/services
+├── src/            React UI, the API/demo client in src/services, and the
+│                   local-first modules in src/local
 ├── shared/         Types, the in-memory store, and validation used by both sides
 ├── server/         Express API and the PostgreSQL store
 ├── docs/           Architecture notes, demo guide, screenshots
@@ -168,7 +240,7 @@ Full details in [docs/architecture.md](docs/architecture.md#error-responses).
 npm test
 ```
 
-49 tests across 7 files:
+Tests, by area:
 
 - `shared/specStore.test.ts`: the in-memory store (create, list, status
   updates, and updating a spec that does not exist).
@@ -182,6 +254,15 @@ npm test
   unreachable API falls back to a local change).
 - `src/utils/pluralize.test.ts`: singular and plural counts for the stats
   strip and spec groups.
+- `src/local/*.test.ts`: the Markdown reader and writer (round trips, front
+  matter errors with line numbers, CRLF and byte order mark, unknown fields),
+  the zip writer (CRC-32 and archive structure), the import merge preview, the
+  IndexedDB workspace (revision checks, other tabs, unreadable data) and the
+  offline worker update path. `localBuild.test.ts` builds the Pages site and
+  checks the Content-Security-Policy and the precache list.
+- `src/App.local.test.tsx` and `src/App.local.a11y.test.tsx`: the browser
+  build end to end (edit, delete, tick criteria, import, export, print,
+  data source switching) and axe checks on each new screen.
 - `src/App.a11y.test.tsx`: automated accessibility checks (axe, WCAG 2 A and
   AA rules) on the list with the document view and on the New spec dialog.
   jsdom cannot compute colors, so color contrast is checked outside jsdom.
@@ -201,8 +282,10 @@ is made public.
 
 - The in-memory store is the default for local runs; data is lost on
   restart unless `DATABASE_URL` points at a real PostgreSQL database.
-- Demo mode keeps data in the browser's `localStorage` only. It is not
-  shared between devices or visitors, and clearing site data resets it.
+- Demo mode keeps sample data in the browser's `localStorage` and Your
+  workspace in IndexedDB. Neither is shared between devices or visitors, and
+  clearing site data removes both. Saved sample data is checked on load;
+  entries that do not pass are left out and the page says how many.
 - There is no authentication. Anyone who can reach the API can read and
   write every spec. Do not deploy this with real secrets or sensitive
   requirement text.

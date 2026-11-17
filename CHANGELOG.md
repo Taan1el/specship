@@ -3,6 +3,25 @@
 All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.1.0] - 2026-11-17
+
+### Added
+
+- The Pages build is now a local-first tool: a "Your workspace" data source next to the sample data keeps your own specs in this browser (IndexedDB, with a versioned schema, revision-checked saves and a message when another tab saves), with no server, account or API key.
+- Specs can be edited (title, requirement, acceptance criteria, status, priority and an optional owner) and deleted, after a confirmation.
+- Acceptance criteria are checkboxes. Ticking every criterion suggests moving the spec to the next status without moving it.
+- Every spec is a Markdown file with front matter, the requirement as prose and an `## Acceptance criteria` task list. A strict reader reports the line that is wrong and accepts CRLF and a byte order mark; unknown front matter fields are kept.
+- Import one or many Markdown files, by file picker or by dropping them on the page, with a preview that sorts specs into new, changed, unchanged and conflicts where the saved copy is newer, and a confirmation that states the counts.
+- Export one spec as a `.md` file, all specs as a zip with one file per spec (a small store-only zip writer with a CRC-32), or all specs as one combined `.md` file that can be imported again.
+- A print layout for the open spec, so it can be saved as a PDF from the browser.
+- A Content-Security-Policy with no external hosts, a web app manifest, and an offline service worker that loads the newest page when online, falls back to the cached page offline, and shows "A new version is ready." with a Reload button instead of reloading by itself.
+- An always-visible line that specs stay in this browser, a quiet backup reminder after changes, and one sentence on what the tool is not.
+
+### Fixed
+
+- Saved sample data is checked when the page loads instead of being trusted. Entries that fail are left out with a notice, and specs saved by version 1.0.0 are kept.
+- Download links stay valid for ten seconds instead of being revoked at once.
+
 ## [Unreleased]
 
 ### Added

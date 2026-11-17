@@ -42,6 +42,27 @@ The `src/services/api.ts` client on the frontend turns any non-2xx response
 into an `ApiError` carrying the same `code` and `issues`, so the UI can show
 the real reason a request failed instead of guessing from the status code.
 
+## Local-first browser build
+
+The Pages build adds the modules in `src/local`:
+
+- `specMarkdown.ts` reads and writes one spec as a Markdown file (front
+  matter, requirement prose, `## Acceptance criteria` task list) and splits a
+  combined file. Errors carry a 1-based line number.
+- `specMerge.ts` sorts imported specs against saved ones by id into new,
+  changed, unchanged and conflict, without writing anything.
+- `zip.ts` writes a store-only zip with a CRC-32; `exportSpecs.ts` and
+  `files.ts` build and download the files.
+- `workspace.ts` is the IndexedDB layer (versioned schema, revision-checked
+  writes, a BroadcastChannel to tell other tabs); `specWorkspace.ts` holds
+  Your workspace on top of it and exposes it as an external store.
+- `offline.ts` and `UpdateNotice.tsx` register the service worker and show the
+  update notice. `localBuild.ts` (next to `vite.config.ts`) emits the
+  Content-Security-Policy, manifest, icons and `sw.js` for the Pages build only.
+
+`shared/specStore.ts` gains `LocalSpecStore` (update, remove, upsertMany) for
+this build. The Express server keeps the smaller `SpecStore`.
+
 ## Demo mode
 
 `npm run build:pages` builds the frontend with `VITE_DEMO_MODE=true` (set in
@@ -52,9 +73,13 @@ the real reason a request failed instead of guessing from the status code.
   imported straight from `shared/specStore.ts`.
 - Writes are validated with the same Zod schemas as the server
   (`shared/validation.ts`), so bad input is rejected the same way.
-- The current spec list is saved to `localStorage` under a namespaced key
-  after every change, and reloaded on the next visit. A "Reset demo data"
-  control clears it and reseeds the store.
+- The sample specs are saved to `localStorage` under a namespaced key after
+  every change, and reloaded on the next visit. Each saved spec is checked on
+  load (`validateStoredSpec`); entries that fail are left out and the page says
+  how many. A "Reset sample data" control clears them and reseeds the store.
+- A second data source, Your workspace, is saved to IndexedDB instead and is
+  never touched by the sample reset. `demoApi.ts` sends every read and write to
+  whichever source is selected.
 - There is no client-side routing in this app, so the Pages build does not
   need hash routing or a 404 fallback page.
 
