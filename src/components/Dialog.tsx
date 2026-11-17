@@ -39,7 +39,9 @@ export function Dialog({ title, onClose, children, wide }: DialogProps) {
 
   // Escape closes the dialog wherever focus is, including on the page behind it.
   const closeRef = useRef(onClose)
-  closeRef.current = onClose
+  useEffect(() => {
+    closeRef.current = onClose
+  }, [onClose])
   useEffect(() => {
     const onEscape = (event: globalThis.KeyboardEvent) => {
       if (event.key === 'Escape') closeRef.current()
