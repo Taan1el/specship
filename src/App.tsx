@@ -221,21 +221,10 @@ function App() {
         return
       }
 
-      // The request never reached the API (offline, API not running). Keep
-      // the workflow usable by saving the spec locally until it is back.
-      const spec: ProductSpec = {
-        ...input,
-        id: `local-${Date.now()}`,
-        status: 'Backlog',
-        updatedAt: new Date().toISOString(),
-      }
-
-      setSpecs((current) => [spec, ...current])
+      // A failed request has no durable server record. Keep the form available for retry.
+      setFormError('Could not save the spec. Check the connection and try again.')
+      setFocusFormError(true)
       setApiState('Offline')
-      setForm(emptyForm)
-      setSelectedStatus('All')
-      setSelectedSpecId(spec.id)
-      setDialogOpen(false)
     }
   }
 

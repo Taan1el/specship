@@ -271,7 +271,7 @@ describe('SpecShip dashboard', () => {
     expect(screen.getByRole('dialog')).toBeInTheDocument()
   })
 
-  it('keeps working locally when the create request cannot reach the API', async () => {
+  it('keeps an unsaved spec in the form when the API cannot be reached', async () => {
     const user = userEvent.setup()
 
     render(<App />)
@@ -292,13 +292,14 @@ describe('SpecShip dashboard', () => {
     })
     await user.click(screen.getByRole('button', { name: 'Create spec' }))
 
-    expect(
-      await screen.findByRole('heading', { name: 'Offline release notes' }),
-    ).toBeInTheDocument()
+    expect(await screen.findByRole('alert')).toHaveTextContent('Could not save the spec')
+    expect(screen.getByRole('alert')).toHaveFocus()
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
     expect(await screen.findByText('Offline')).toBeInTheDocument()
-    expect(screen.getByText('Summarize release changes.')).toBeInTheDocument()
-    expect(screen.getByText('Show rollback notes.')).toBeInTheDocument()
-    expect(screen.queryByText(/  Offline release notes  /)).not.toBeInTheDocument()
+    expect(screen.getByLabelText('Title')).toHaveValue('  Offline release notes  ')
+    expect(screen.getByLabelText('Requirement')).toHaveValue('  Summarize release changes.  ')
+    expect(screen.getByLabelText('Acceptance criterion')).toHaveValue('  Show rollback notes.  ')
+    expect(screen.queryByRole('heading', { name: 'Offline release notes' })).not.toBeInTheDocument()
   })
 
   it('keeps the form open when a successful create response is unreadable', async () => {
