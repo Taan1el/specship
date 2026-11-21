@@ -46,6 +46,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Added a slim demo bar with the reset action and a link to the source, replacing the inline demo notice.
 - Raised every control to at least 44px tall and confirmed the layout holds to one column with no horizontal page scroll under 720px.
 
+### Fixed
+
+- Creating a spec while the API cannot be reached now keeps the New spec dialog open with the filled-in fields and a message to try again. Before, the spec appeared in the list but was only held in memory and disappeared on reload.
+
 ## [1.0.0] - 2026-09-13
 
 ### Added
