@@ -49,6 +49,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 
 - Creating a spec while the API cannot be reached now keeps the New spec dialog open with the filled-in fields and a message to try again. Before, the spec appeared in the list but was only held in memory and disappeared on reload.
+- Moving a spec while the API cannot be reached now keeps its saved status and shows a message to try again. Before, the new status was shown but never saved, so a reload moved the spec back.
 
 ## [1.0.0] - 2026-09-13
 

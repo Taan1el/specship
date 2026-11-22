@@ -343,7 +343,7 @@ describe('SpecShip dashboard', () => {
     ).toBeInTheDocument()
   })
 
-  it('falls back to a local status change when the move request cannot reach the API', async () => {
+  it('keeps the saved status and offers a retry when the move request cannot reach the API', async () => {
     const user = userEvent.setup()
 
     render(<App />)
@@ -358,9 +358,25 @@ describe('SpecShip dashboard', () => {
 
     await user.click(moveButton)
 
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Could not move "Spec intake dashboard" to Review',
+    )
+    expect(await screen.findByText('Offline')).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Move Spec intake dashboard from In progress' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'Move Spec intake dashboard from Review' }),
+    ).not.toBeInTheDocument()
+
+    // The next attempt goes through once the API answers again.
+    await user.click(
+      screen.getByRole('button', { name: 'Move Spec intake dashboard from In progress' }),
+    )
     expect(
       await screen.findByRole('button', { name: 'Move Spec intake dashboard from Review' }),
     ).toBeInTheDocument()
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
   })
 
   it('keeps the current status when a successful move response is unreadable', async () => {

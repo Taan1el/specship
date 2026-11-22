@@ -249,16 +249,9 @@ function App() {
         return
       }
 
-      setSpecs((current) =>
-        current.map((currentSpec) =>
-          currentSpec.id === spec.id
-            ? {
-                ...currentSpec,
-                status: nextStatus,
-                updatedAt: new Date().toISOString(),
-              }
-            : currentSpec,
-        ),
+      // The API never saw the change, so the spec keeps its saved status.
+      setListError(
+        `Could not move "${spec.title}" to ${nextStatus}. Check the connection and try again.`,
       )
       setApiState('Offline')
     }

@@ -250,8 +250,8 @@ Tests, by area:
 - `src/services/api.test.ts` and `src/services/demoApi.test.ts`: the real
   and demo API clients, including validation errors and persistence.
 - `src/App.test.tsx`: filtering, moving a spec, creating a spec, and the
-  error-handling paths (a rejected request shows its message; only an
-  unreachable API falls back to a local change).
+  error-handling paths (a rejected request shows its message; an
+  unreachable API keeps the saved state and asks for a retry).
 - `src/utils/pluralize.test.ts`: singular and plural counts for the stats
   strip and spec groups.
 - `src/local/*.test.ts`: the Markdown reader and writer (round trips, front

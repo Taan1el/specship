@@ -24,8 +24,8 @@ runs the demo mode described below: no backend, sample data in your browser.
    - The change is saved through `PATCH /api/specs/:id/status` (or, in demo
      mode, the in-browser store). If the request reaches the API and it
      rejects the change, the spec keeps its current status and shows why.
-     If the API cannot be reached at all, the UI applies the change locally
-     and marks the API state as offline until it recovers.
+     If the API cannot be reached at all, the spec also keeps its status, the
+     API state shows offline, and a message asks you to try the move again.
 
 4. **Create a spec**
    - Open New spec and fill in the dialog with a title, owner, priority,
